@@ -1,4 +1,4 @@
-import { Redirect } from "expo-router";
+import { Redirect } from 'expo-router';
 
 export default function Index() {
   const isAuthenticated = true; // replace with your auth state

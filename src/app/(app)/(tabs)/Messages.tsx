@@ -23,13 +23,13 @@
 //                             </View>
 //                         </View>
 
-//                         <TouchableOpacity 
+//                         <TouchableOpacity
 //                             <CircleHelp size={22} color="#222" />
 //                             <Text style={styles.helpText}>Help Center</Text>
 //                         </TouchableOpacity>
 //                     </View>
 
-//                   
+//
 //                     {/* Life Insurance Card */}
 //                     <TouchableOpacity style={styles.guaranteeCard}>
 //                         <View style={styles.guaranteeIcon}>
@@ -122,3 +122,4 @@
 //     );
 // }
 
+//alertContainer: { paddingHorizontal: "4%", paddingVertical: "2%", gap: 4, }, alertBox: { marginBottom: '6%', width: '100%', }, alertCard: { flexDirection: 'row', alignItems: 'center', borderRadius: 20, padding: '4%', borderWidth: 2, maxWidth: "50%" }, alertContent: { flex: 1, }, alertTitle: { fontSize: 17, fontWeight: "700", }, alertDescription: { color: "#222", fontSize: 14, fontWeight: "300", }, alertButton: { width: 56, height: 40, borderRadius: 22, alignItems: "center", justifyContent: "center", }, alertButtonText: { fontSize: 16, fontWeight: "500", },

@@ -1,11 +1,9 @@
-import { Text, View } from "react-native";
+import { Text, View } from 'react-native';
 
 export default function Index() {
-    return (
-        <View>
-            <Text>
-                profile
-            </Text>
-        </View>
-    )
+  return (
+    <View>
+      <Text>profile</Text>
+    </View>
+  );
 }
