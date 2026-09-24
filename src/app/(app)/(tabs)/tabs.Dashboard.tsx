@@ -4,7 +4,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ArrowRight, Bell, Box } from 'lucide-react-native';
 import { useScreenSize } from '../../../hooks/responsiveSize';
 
-import UpcomingEventsCard from '@/components/UpcomingEventCard';
+import UpcomingEventsCard from '@/components/component.UpcomingEventCard';
 import { LinearGradient } from 'expo-linear-gradient';
 
 import { DashboardStyles } from '../../../styles/styles';

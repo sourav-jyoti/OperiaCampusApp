@@ -156,7 +156,7 @@ export const DashboardStyles = StyleSheet.create({
   },
 
   periodCard: {
-    width: '32%',
+    width: '30%',
     height: 40,
     borderRadius: 8,
     borderWidth: 1,

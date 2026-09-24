@@ -4,7 +4,7 @@ export default function Index() {
   const isAuthenticated = true; // replace with your auth state
 
   if (isAuthenticated) {
-    return <Redirect href="/(app)/(tabs)/Dashboard" />;
+    return <Redirect href="/(app)/(tabs)/tabs.Dashboard" />;
   }
 
   //return <Redirect href="(auth)" />;
