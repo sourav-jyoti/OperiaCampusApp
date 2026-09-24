@@ -7,7 +7,7 @@ export const DashboardStyles = StyleSheet.create({
   },
 
   scrollContent: {
-    paddingBottom: 110,
+    paddingBottom: 7,
   },
 
   // Header
@@ -16,7 +16,7 @@ export const DashboardStyles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingBottom: '7%',
+    paddingBottom: '4%',
   },
 
   profileSection: {
@@ -67,6 +67,7 @@ export const DashboardStyles = StyleSheet.create({
   componentHeader: {
     paddingLeft: '4%',
     marginBottom: '2%',
+    marginTop: '5%',
   },
   componentText: {
     fontSize: 16,
@@ -75,7 +76,7 @@ export const DashboardStyles = StyleSheet.create({
   headerLine: {
     borderWidth: 2,
     maxWidth: '10%',
-    marginTop: 4,
+    marginTop: 2,
     borderColor: '#000000ff',
   },
 
@@ -85,10 +86,6 @@ export const DashboardStyles = StyleSheet.create({
     paddingHorizontal: '4%',
     paddingVertical: '2%',
     gap: 12,
-  },
-
-  alertBox: {
-    marginBottom: '3%',
   },
 
   alertCard: {
@@ -146,6 +143,7 @@ export const DashboardStyles = StyleSheet.create({
     color: '#222',
     fontSize: 14,
     marginTop: 10,
+    marginBottom: 5,
   },
   periodGrid: {
     width: '100%',
@@ -153,25 +151,26 @@ export const DashboardStyles = StyleSheet.create({
     flexWrap: 'wrap',
     justifyContent: 'space-between',
     rowGap: 8,
-    paddingHorizontal: '4%',
+    paddingHorizontal: '3%',
+    marginBottom: '2%',
   },
 
   periodCard: {
-    width: '28%',
-    height: 38,
+    width: '32%',
+    height: 40,
     borderRadius: 8,
     borderWidth: 1,
     borderColor: '#8b4a0dff',
     backgroundColor: '#ffffff',
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: '3%',
+    paddingHorizontal: '2%',
   },
 
   periodNumber: {
-    width: '27%',
-    fontSize: 18,
-    fontWeight: '700',
+    width: '30%',
+    fontSize: 27,
+    fontWeight: '400',
     color: '#8b4a0dff',
     textAlign: 'center',
   },
@@ -191,74 +190,60 @@ export const DashboardStyles = StyleSheet.create({
   // Quick Actions
 
   quickActionContainer: {
+    width: '100%',
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'space-between',
-    paddingHorizontal: 40,
-    marginTop: 38,
+    paddingHorizontal: 5,
+    marginTop: 15,
   },
 
   category: {
-    width: '22%',
+    flexDirection: 'column',
+    width: '25%',
     alignItems: 'center',
-    marginBottom: 32,
+    marginBottom: 20,
+    paddingHorizontal: 3,
   },
 
   categoryIcon: {
-    width: 84,
-    height: 84,
+    width: 65,
+    height: 55,
     borderRadius: 13,
     backgroundColor: '#f3f8fc',
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 13,
+    marginBottom: 6,
+    borderWidth: 1,
+    borderColor: '#969387ff',
   },
 
   categoryText: {
     textAlign: 'center',
-    fontSize: 16,
-    lineHeight: 23,
+    fontSize: 12,
     color: '#222',
-    fontWeight: '500',
+    fontWeight: '400',
   },
 
-  // Bottom Navigation
-
-  bottomNav: {
-    position: 'absolute',
-    left: 25,
-    right: 25,
-    bottom: 16,
-    height: 78,
-    borderRadius: 28,
-    backgroundColor: '#111111',
+  viewAllButton: {
+    marginVertical: 10,
     flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-around',
-
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 8,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 15,
-    elevation: 10,
+    gap: 10,
+    borderWidth: 1,
+    borderColor: '#a78104ff',
+    width: '30%',
+    borderRadius: 10,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    alignSelf: 'center', // Centers the button horizontally in its parent
+    alignItems: 'center', // Centers child elements (Text) horizontally
+    justifyContent: 'center', // Centers child elements (Text) vertically
   },
-
-  navItem: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 4,
+  viewAllText: {
+    textAlign: 'center',
+    color: '#a78104', // adjust color as needed
   },
-
-  navText: {
-    fontSize: 14,
-    color: '#858585',
-  },
-
-  activeNavText: {
-    color: '#fff',
+  section: {
+    paddingVertical: 8,
   },
 });
