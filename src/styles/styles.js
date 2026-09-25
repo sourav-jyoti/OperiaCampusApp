@@ -101,7 +101,7 @@ export const DashboardStyles = StyleSheet.create({
 
     minHeight: 110,
 
-    borderBottomWidth: 7,
+    borderBottomWidth: 4,
   },
 
   alertContent: {

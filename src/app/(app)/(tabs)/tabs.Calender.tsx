@@ -1,30 +1,88 @@
 import { useState } from 'react';
-import { Text, View } from 'react-native';
-import CollapsibleCalendar from '../../../components/component.Calender';
-import { CalendarStyles } from '../../../styles/calenderStyle';
-const styles = CalendarStyles;
+import { SafeAreaView, ScrollView, StatusBar, StyleSheet, Text, View } from 'react-native';
+import GestureCollapsibleCalendar from '../../../components/component.Calender';
 
-export default function Calendar() {
+export default function CalendarExample() {
   const [selectedDate, setSelectedDate] = useState(new Date());
 
   const handleDateSelect = (date: Date) => {
     setSelectedDate(date);
-    console.log('Selected date:', date);
   };
 
   return (
-    <View style={styles.container}>
-      <View style={styles.content}>
-        <Text style={styles.title}>Calendar App</Text>
+    <SafeAreaView style={styles.container}>
+      <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
 
-        <CollapsibleCalendar currentDate={new Date()} onDateSelect={handleDateSelect} />
-
-        {/* Display selected date info */}
-        <View style={styles.infoBox}>
-          <Text style={styles.infoLabel}>Selected Date:</Text>
-          <Text style={styles.infoValue}>{selectedDate.toDateString()}</Text>
+      <ScrollView style={styles.scrollView} scrollEnabled={false}>
+        {/* Content above calendar */}
+        <View style={styles.topContent}>
+          <Text style={styles.title}>Schedule</Text>
+          <Text style={styles.subtitle}>Drag up to view full calendar</Text>
         </View>
-      </View>
-    </View>
+
+        {/* Gesture Controlled Calendar */}
+        <GestureCollapsibleCalendar currentDate={new Date()} onDateSelect={handleDateSelect} />
+      </ScrollView>
+
+      {/* Selected date info (below calendar if visible) */}
+      {selectedDate && (
+        <View style={styles.infoPanel}>
+          <Text style={styles.infoTitle}>Selected Date</Text>
+          <Text style={styles.infoDate}>
+            {selectedDate.toLocaleDateString('en-US', {
+              weekday: 'long',
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric',
+            })}
+          </Text>
+        </View>
+      )}
+    </SafeAreaView>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#f9fafb',
+  },
+  scrollView: {
+    flex: 1,
+  },
+  topContent: {
+    paddingHorizontal: 16,
+    paddingVertical: 24,
+  },
+  title: {
+    fontSize: 32,
+    fontWeight: '700',
+    color: '#1f2937',
+    marginBottom: 4,
+  },
+  subtitle: {
+    fontSize: 14,
+    color: '#6b7280',
+    fontWeight: '500',
+  },
+  infoPanel: {
+    paddingHorizontal: 16,
+    paddingVertical: 16,
+    backgroundColor: '#ecfdf5',
+    borderTopWidth: 1,
+    borderTopColor: '#d1fae5',
+  },
+  infoTitle: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#047857',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+    marginBottom: 6,
+  },
+  infoDate: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#065f46',
+  },
+});

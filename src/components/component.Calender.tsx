@@ -1,243 +1,345 @@
 import { addMonths, format } from 'date-fns';
 import React, { useRef, useState } from 'react';
-import { Animated, Dimensions, PanResponder, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import {
+  Animated,
+  Dimensions,
+  PanResponder,
+  Pressable,
+  StyleSheet,
+  Text,
+  View
+} from 'react-native';
 import { Calendar } from 'react-native-calendars';
 
-const { width } = Dimensions.get('window');
+const { height: screenHeight, width: screenWidth } = Dimensions.get('window');
+const HEADER_HEIGHT = 70;
+const COLLAPSED_HEIGHT = HEADER_HEIGHT;
+const EXPANDED_HEIGHT = screenHeight * 0.75;
+const DRAG_THRESHOLD = 50;
 
-interface CollapsibleCalendarProps {
+interface GestureCollapsibleCalendarProps {
   currentDate: Date;
   onDateSelect?: (date: Date) => void;
 }
 
-const CollapsibleCalendar: React.FC<CollapsibleCalendarProps> = ({ currentDate, onDateSelect }) => {
-  const [isExpanded, setIsExpanded] = useState(false);
-  const [displayDate, setDisplayDate] = useState(currentDate);
+export const GestureCollapsibleCalendar: React.FC<GestureCollapsibleCalendarProps> = ({
+  currentDate,
+  onDateSelect,
+}) => {
   const [selectedDate, setSelectedDate] = useState(currentDate);
+  const [displayDate, setDisplayDate] = useState(currentDate);
+  const [isExpanded, setIsExpanded] = useState(false);
 
-  const heightAnim = useRef(new Animated.Value(0)).current;
-  const rotateAnim = useRef(new Animated.Value(0)).current;
+  const heightAnim = useRef(new Animated.Value(COLLAPSED_HEIGHT)).current;
+  const opacityAnim = useRef(new Animated.Value(0)).current;
+  const indicatorRotate = useRef(new Animated.Value(0)).current;
+
   const panResponder = useRef(
     PanResponder.create({
       onStartShouldSetPanResponder: () => true,
-      onMoveShouldSetPanResponder: () => true,
-      onPanResponderRelease: (evt, gestureState) => {
-        const { dx } = gestureState;
-        const threshold = 50;
+      onMoveShouldSetPanResponder: (evt, { dy }) => Math.abs(dy) > 5,
 
-        if (dx > threshold) {
-          // Swipe right - go to previous month
-          handlePrevMonth();
-        } else if (dx < -threshold) {
-          // Swipe left - go to next month
-          handleNextMonth();
+      onPanResponderMove: (evt, { dy }) => {
+        if (!isExpanded && dy > 0) {
+          // Expanding from collapsed
+          const dragProgress = Math.min(dy / (EXPANDED_HEIGHT - COLLAPSED_HEIGHT), 1);
+          heightAnim.setValue(COLLAPSED_HEIGHT + dy);
+          opacityAnim.setValue(dragProgress);
+          indicatorRotate.setValue(dragProgress);
+        } else if (isExpanded && dy < 0) {
+          // Collapsing from expanded
+          const distance = EXPANDED_HEIGHT - COLLAPSED_HEIGHT;
+          const dragProgress = Math.max(1 + dy / distance, 0);
+          heightAnim.setValue(EXPANDED_HEIGHT + dy);
+          opacityAnim.setValue(dragProgress);
+          indicatorRotate.setValue(dragProgress);
         }
       },
-    }),
+
+      onPanResponderRelease: (evt, { dy, vy }) => {
+        let targetHeight = COLLAPSED_HEIGHT;
+        let targetOpacity = 0;
+        let targetRotate = 0;
+        let nextExpanded = false;
+
+        if (!isExpanded) {
+          // Currently collapsed - decide whether to expand
+          const shouldExpand = dy > DRAG_THRESHOLD || vy > 1;
+          if (shouldExpand) {
+            targetHeight = EXPANDED_HEIGHT;
+            targetOpacity = 1;
+            targetRotate = 1;
+            nextExpanded = true;
+          }
+        } else {
+          // Currently expanded - decide whether to collapse
+          const shouldCollapse = dy < -DRAG_THRESHOLD || vy < -1;
+          if (shouldCollapse) {
+            targetHeight = COLLAPSED_HEIGHT;
+            targetOpacity = 0;
+            targetRotate = 0;
+            nextExpanded = false;
+          } else {
+            targetHeight = EXPANDED_HEIGHT;
+            targetOpacity = 1;
+            targetRotate = 1;
+            nextExpanded = true;
+          }
+        }
+
+        // Snap to final position
+        Animated.parallel([
+          Animated.timing(heightAnim, {
+            toValue: targetHeight,
+            duration: 400,
+            useNativeDriver: false,
+          }),
+          Animated.timing(opacityAnim, {
+            toValue: targetOpacity,
+            duration: 400,
+            useNativeDriver: false,
+          }),
+          Animated.timing(indicatorRotate, {
+            toValue: targetRotate,
+            duration: 400,
+            useNativeDriver: false,
+          }),
+        ]).start();
+
+        setIsExpanded(nextExpanded);
+      },
+    })
   ).current;
 
-  const dateStr = format(displayDate, 'yyyy-MM-dd');
   const selectedDateStr = format(selectedDate, 'yyyy-MM-dd');
+  const displayDateStr = format(displayDate, 'yyyy-MM-dd');
 
   const markedDates: Record<string, any> = {
-    [dateStr]: {
+    [selectedDateStr]: {
       selected: true,
-      selectedColor: '#4CAF50',
-      selectedTextColor: '#fff',
+      selectedColor: '#10b981',
+      selectedTextColor: '#ffffff',
     },
   };
 
-  if (selectedDateStr !== dateStr) {
-    markedDates[selectedDateStr] = {
-      marked: true,
-      dotColor: '#4CAF50',
-    };
-  }
+  const handleMonthPrev = () => setDisplayDate(addMonths(displayDate, -1));
+  const handleMonthNext = () => setDisplayDate(addMonths(displayDate, 1));
 
-  const handlePrevMonth = () => {
-    setDisplayDate(addMonths(displayDate, -1));
+  const handleDayPress = (day: string) => {
+    const newDate = new Date(day);
+    setSelectedDate(newDate);
+    onDateSelect?.(newDate);
   };
 
-  const handleNextMonth = () => {
-    setDisplayDate(addMonths(displayDate, 1));
-  };
-
-  const toggleExpand = () => {
-    const targetHeight = isExpanded ? 0 : 420;
-    const targetRotate = isExpanded ? 0 : 1;
-
-    Animated.parallel([
-      Animated.timing(heightAnim, {
-        toValue: targetHeight,
-        duration: 300,
-        useNativeDriver: false,
-      }),
-      Animated.timing(rotateAnim, {
-        toValue: targetRotate,
-        duration: 300,
-        useNativeDriver: false,
-      }),
-    ]).start();
-
-    setIsExpanded(!isExpanded);
-  };
-
-  const rotateInterpolate = rotateAnim.interpolate({
+  const rotateInterpolate = indicatorRotate.interpolate({
     inputRange: [0, 1],
     outputRange: ['0deg', '180deg'],
   });
 
-  const handleDateSelect = (day: string) => {
-    const selected = new Date(day);
-    setSelectedDate(selected);
-    onDateSelect?.(selected);
-  };
-
   return (
-    <View style={styles.container}>
-      {/* Header */}
-      <TouchableOpacity style={styles.header} onPress={toggleExpand}>
-        <View style={styles.headerContent}>
-          <Text style={styles.dateText}>{format(selectedDate, 'MMM dd, yyyy')}</Text>
-          <Text style={styles.dayText}>{format(selectedDate, 'EEEE')}</Text>
+    <Animated.View
+      style={[styles.container, { height: heightAnim }]}
+      {...panResponder.panHandlers}
+    >
+      {/* Header - Gesture Zone */}
+      <View style={styles.header}>
+        <View style={styles.headerLeft}>
+          <Text style={styles.dateLabel}>
+            {format(selectedDate, 'MMM dd, yyyy')}
+          </Text>
+          <Text style={styles.dayLabel}>
+            {format(selectedDate, 'EEEE')}
+          </Text>
         </View>
-        <Animated.View style={[styles.chevron, { transform: [{ rotate: rotateInterpolate }] }]}>
-          <Text style={styles.chevronText}>▼</Text>
+
+        <Animated.View
+          style={[
+            styles.indicator,
+            { transform: [{ rotate: rotateInterpolate }] },
+          ]}
+        >
+          <Text style={styles.chevron}>⌄</Text>
         </Animated.View>
-      </TouchableOpacity>
+      </View>
 
-      {/* Collapsible Calendar */}
-      <Animated.View style={[styles.expandedContainer, { height: heightAnim }, { overflow: 'hidden' }]}>
-        <View style={styles.calendarWrapper} {...panResponder.panHandlers}>
-          {/* Month Navigation */}
-          <View style={styles.monthNav}>
-            <TouchableOpacity onPress={handlePrevMonth} style={styles.navButton}>
-              <Text style={styles.navButtonText}>‹</Text>
-            </TouchableOpacity>
-            <Text style={styles.monthText}>{format(displayDate, 'MMMM yyyy')}</Text>
-            <TouchableOpacity onPress={handleNextMonth} style={styles.navButton}>
-              <Text style={styles.navButtonText}>›</Text>
-            </TouchableOpacity>
-          </View>
+      {/* Drag Handle */}
+      <View style={styles.dragHandleContainer}>
+        <View style={styles.dragHandle} />
+      </View>
 
-          {/* Calendar */}
-          <Calendar
-            current={dateStr}
-            markedDates={markedDates}
-            onDayPress={(day) => handleDateSelect(day.dateString)}
-            monthFormat="MMMM yyyy"
-            hideArrows={true}
-            disableMonthChange={true}
-            style={styles.calendar}
-            theme={{
-              backgroundColor: '#fff',
-              calendarBackground: '#fff',
-              textSectionTitleColor: '#999',
-              textSectionTitleDisabledColor: '#d9e1e8',
-              selectedDayBackgroundColor: '#4CAF50',
-              selectedDayTextColor: '#fff',
-              todayTextColor: '#4CAF50',
-              dayTextColor: '#2d3436',
-              textDisabledColor: '#d9e1e8',
-              dotColor: '#4CAF50',
-              selectedDotColor: '#fff',
-              arrowColor: '#4CAF50',
-              disabledArrowColor: '#d9e1e8',
-              monthTextColor: '#2d3436',
-              indicatorColor: '#4CAF50',
-              textDayFontFamily: 'System',
-              textMonthFontFamily: 'System',
-              textDayHeaderFontFamily: 'System',
-              textDayFontSize: 14,
-              textMonthFontSize: 16,
-              textDayHeaderFontSize: 13,
-            }}
-          />
+      {/* Calendar Content */}
+      <Animated.ScrollView
+        style={[
+          styles.contentContainer,
+          {
+            opacity: opacityAnim,
+            pointerEvents: isExpanded ? 'auto' : 'none',
+          },
+        ]}
+        scrollEnabled={false}
+      >
+        {/* Month Navigation */}
+        <View style={styles.monthNavigation}>
+          <Pressable
+            onPress={handleMonthPrev}
+            style={({ pressed }) => [
+              styles.navButton,
+              pressed && styles.navButtonPressed,
+            ]}
+          >
+            <Text style={styles.navButtonText}>‹</Text>
+          </Pressable>
+
+          <Text style={styles.monthTitle}>
+            {format(displayDate, 'MMMM yyyy')}
+          </Text>
+
+          <Pressable
+            onPress={handleMonthNext}
+            style={({ pressed }) => [
+              styles.navButton,
+              pressed && styles.navButtonPressed,
+            ]}
+          >
+            <Text style={styles.navButtonText}>›</Text>
+          </Pressable>
         </View>
-      </Animated.View>
-    </View>
+
+        {/* Calendar Component */}
+        <Calendar
+          current={displayDateStr}
+          markedDates={markedDates}
+          onDayPress={(day) => handleDayPress(day.dateString)}
+          hideArrows={true}
+          disableMonthChange={true}
+          style={styles.calendarStyle}
+          theme={{
+            backgroundColor: '#ffffff',
+            calendarBackground: '#ffffff',
+            textSectionTitleColor: '#6b7280',
+            selectedDayBackgroundColor: '#10b981',
+            selectedDayTextColor: '#ffffff',
+            todayTextColor: '#10b981',
+            dayTextColor: '#1f2937',
+            textDisabledColor: '#e5e7eb',
+            dotColor: '#10b981',
+            selectedDotColor: '#ffffff',
+            arrowColor: '#10b981',
+            monthTextColor: '#1f2937',
+            textDayFontSize: 15,
+            textMonthFontSize: 16,
+            textDayHeaderFontSize: 13,
+          }}
+        />
+      </Animated.ScrollView>
+    </Animated.View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    width: '100%',
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    overflow: 'hidden',
-    elevation: 3,
+    width: screenWidth,
+    backgroundColor: '#ffffff',
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    elevation: 10,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
+    shadowOffset: { width: 0, height: -4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 12,
+    overflow: 'hidden',
   },
   header: {
+    height: HEADER_HEIGHT,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 16,
-    paddingVertical: 16,
-    backgroundColor: '#f5f5f5',
+    paddingVertical: 12,
+    backgroundColor: '#f3f4f6',
+    borderBottomWidth: 1,
+    borderBottomColor: '#e5e7eb',
   },
-  headerContent: {
+  headerLeft: {
     flex: 1,
   },
-  dateText: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#2d3436',
+  dateLabel: {
+    fontSize: 17,
+    fontWeight: '700',
+    color: '#1f2937',
     marginBottom: 4,
+    letterSpacing: 0.2,
   },
-  dayText: {
+  dayLabel: {
     fontSize: 13,
-    color: '#7f8c8d',
+    fontWeight: '500',
+    color: '#6b7280',
   },
-  chevron: {
-    width: 24,
-    height: 24,
+  indicator: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: '#e5e7eb',
     justifyContent: 'center',
     alignItems: 'center',
   },
-  chevronText: {
-    fontSize: 16,
-    color: '#4CAF50',
+  chevron: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#10b981',
   },
-  expandedContainer: {
-    backgroundColor: '#fff',
-    overflow: 'hidden',
+  dragHandleContainer: {
+    height: 8,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#ffffff',
+    paddingVertical: 4,
   },
-  calendarWrapper: {
-    paddingVertical: 16,
-    paddingHorizontal: 12,
+  dragHandle: {
+    width: 36,
+    height: 4,
+    backgroundColor: '#d1d5db',
+    borderRadius: 2,
   },
-  monthNav: {
+  contentContainer: {
+    flex: 1,
+    paddingHorizontal: 8,
+    paddingTop: 8,
+    paddingBottom: 16,
+  },
+  monthNavigation: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 16,
-    paddingHorizontal: 8,
+    marginHorizontal: 8,
+    marginBottom: 12,
   },
   navButton: {
-    width: 32,
-    height: 32,
+    width: 40,
+    height: 40,
+    borderRadius: 8,
+    backgroundColor: '#f3f4f6',
     justifyContent: 'center',
     alignItems: 'center',
-    borderRadius: 6,
-    backgroundColor: '#f0f0f0',
+  },
+  navButtonPressed: {
+    backgroundColor: '#e5e7eb',
   },
   navButtonText: {
-    fontSize: 20,
-    color: '#2d3436',
-    fontWeight: '600',
+    fontSize: 22,
+    fontWeight: '700',
+    color: '#10b981',
   },
-  monthText: {
+  monthTitle: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#2d3436',
+    color: '#1f2937',
+    flex: 1,
+    textAlign: 'center',
   },
-  calendar: {
-    borderRadius: 8,
+  calendarStyle: {
+    borderRadius: 12,
   },
 });
 
-export default CollapsibleCalendar;
+export default GestureCollapsibleCalendar;
