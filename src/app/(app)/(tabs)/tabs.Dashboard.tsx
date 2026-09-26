@@ -1,15 +1,17 @@
+import { LinearGradient } from 'expo-linear-gradient';
+import { ArrowRight, Bell, Box } from 'lucide-react-native';
 import { Pressable, ScrollView, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { ArrowRight, Bell, Box } from 'lucide-react-native';
-import { useScreenSize } from '../../../hooks/responsiveSize';
-
+import { useTabBarScroll } from '@/hooks/useTabBarScroll';
 import UpcomingEventsCard from '@/components/component.UpcomingEventCard';
-import { LinearGradient } from 'expo-linear-gradient';
 
+import { useScreenSize } from '../../../hooks/responsiveSize';
 import { DashboardStyles } from '../../../styles/styles';
 
-import { Href } from 'expo-router';
+import BannerCard from '@/components/component.AlertCard';
+import { bannerNotice, tilesData, timetableData } from '../../../utilities/mockdata';
+
 const styles = DashboardStyles;
 
 const profile: { name: string; uuid: string; role: string; permision: string[] } = {
@@ -19,60 +21,25 @@ const profile: { name: string; uuid: string; role: string; permision: string[] }
   permision: ['create', 'read', 'update', 'delete'],
 };
 
-const bannerNotice: { title: string; description: string; path: string; pathname: string; Color: { Border: string; Button: string } }[] = [
-  {
-    title: 'Fee due',
-    description: 'Your fee payment is pending . Please complete it by 15 nov .',
-    path: '',
-    pathname: 'Pay now',
-    Color: { Border: '#e96e10ff', Button: '#fa7d50ff' },
-  },
-  { title: 'Result ', description: 'Your exam result is published', path: '', pathname: 'view result', Color: { Border: '#9de910ff', Button: '#0e9527ff' } },
-];
-
-const timeTable: { day: String; date: string; schedule: Array<{ subject: string; startTime: string; endTime: string; Period: string; class: string }> }[] = [
-  {
-    day: 'Monday',
-    date: '11 june, 26',
-    schedule: [
-      { subject: 'Math', startTime: '9:00 AM', endTime: '10:00 AM', Period: '1', class: 'VI C' },
-      { subject: 'Science', startTime: '10:00 AM', endTime: '11:00 AM', Period: '2', class: 'VII A ' },
-      { subject: 'SST.', startTime: '11:00 AM', endTime: '11:30 AM', Period: '3', class: 'V C' },
-      { subject: 'Lang.', startTime: '11:30 AM', endTime: '12:00 PM', Period: '4', class: 'VII B' },
-      { subject: 'Comp sci.', startTime: '12:00 PM', endTime: '12:30 PM', Period: '5', class: 'IV C' },
-      { subject: 'Play ', startTime: '12:30 PM', endTime: '1:00 PM', Period: '6', class: 'I C' },
-    ],
-  },
-];
-
-const tiles: { title: string; icon: string; badge: string; path: Href | '' }[] = [
-  { title: 'salary', icon: 'fee', badge: '', path: '' },
-  { title: 'Mark Attendance Attendance ', icon: 'attendance', badge: '77%', path: '' },
-  { title: 'Assignment', icon: 'assignment', badge: '0', path: '' },
-  { title: 'Results', icon: 'result', badge: '8.55', path: '' },
-  { title: 'Events', icon: 'event', badge: '', path: '' },
-  { title: 'View Marks', icon: 'place_holder', badge: 'X', path: '' },
-  { title: 'Time Table', icon: 'place_holder', badge: 'X', path: '' },
-  { title: 'Time Table', icon: 'place_holder', badge: 'X', path: '' },
-];
-
-// const tileImages: Record<string, any> = {
-//     salary: require("../../../assets/myassets/fee.png"),
-//     attendance: require("../../../assets/myassets/attendance.png"),
-//     assignment: require("../../../assets/myassets/assignment.png"),
-//     result: require("../../../assets/myassets/result.png"),
-//     event: require("../../../assets/myassets/event.png"),
-//     place_holder: require("../../../assets/myassets/place_holder.png"),
-// };
-
 export default function Dashboard() {
   const insets = useSafeAreaInsets();
   const { width, height } = useScreenSize();
+  const { onScroll, scrollEventThrottle } = useTabBarScroll();
+
+  const CARD_WIDTH = Math.round(width * 0.88);
+  const CARD_GAP = 10;
+  const CARD_SPACING = (width - CARD_WIDTH) / 2;
+  const snapOffsets = bannerNotice.map((_, index) => index * (CARD_WIDTH + CARD_GAP));
 
   return (
     <View style={styles.container}>
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
-        <LinearGradient colors={['#f4d65b', '#f5e193', '#ffffff']} locations={[0.22, 0.5, 1.0]} start={{ x: 0.5, y: 0 }} end={{ x: 0.5, y: 1 }}>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={[styles.scrollContent, { paddingBottom: insets.bottom + 90 }]}
+        onScroll={onScroll}
+        scrollEventThrottle={scrollEventThrottle}
+      >
+        <LinearGradient colors={['#f4d65b', '#f5e193', '#ffffffff']} locations={[0.22, 0.5, 1.0]} start={{ x: 0.5, y: 0 }} end={{ x: 0.5, y: 1 }}>
           {/**Header */}
           <View style={[styles.header, { paddingTop: insets.top + 15, paddingLeft: insets.left + 17, paddingRight: insets.right + 17 }]}>
             <Pressable style={styles.profileSection}>
@@ -104,25 +71,37 @@ export default function Dashboard() {
             <View style={styles.headerLine}></View>
           </View>
 
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.alertContainer}>
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            nestedScrollEnabled={true}
+            decelerationRate="fast"
+            snapToInterval={CARD_WIDTH + CARD_GAP}
+            snapToOffsets={snapOffsets}
+            disableIntervalMomentum={true}
+            style={{
+              marginLeft: -(insets.left + 7),
+              marginRight: -(insets.right + 3),
+            }}
+            contentContainerStyle={[
+              styles.alertContainer,
+              {
+                paddingHorizontal: CARD_SPACING,
+                gap: CARD_GAP,
+              },
+            ]}
+          >
             {bannerNotice.map((item, index) => (
-              <Pressable key={index} style={({ pressed }) => [{ width: width * 0.85 }, pressed && { opacity: 0.9, transform: [{ scale: 0.98 }] }]}>
-                <View style={[styles.alertCard, { borderColor: item.Color.Border }]}>
-                  <View style={styles.alertContent}>
-                    <Text style={[styles.alertTitle, { color: item.Color.Border }]} numberOfLines={1}>
-                      {item.title}
-                    </Text>
+              <BannerCard
+                key={`${item.title}-${index}`}
+                item={item}
+                cardWidth={CARD_WIDTH}
+                onPress={(item) => {
+                  console.log('Pressed:', item.pathname);
 
-                    <Text style={styles.alertDescription} numberOfLines={5}>
-                      {item.description}
-                    </Text>
-                  </View>
-
-                  <View style={[styles.alertButton, { backgroundColor: item.Color.Button }]}>
-                    <Text style={styles.alertButtonText}>{item.pathname}</Text>
-                  </View>
-                </View>
-              </Pressable>
+                  // navigation.navigate(item.path)
+                }}
+              />
             ))}
           </ScrollView>
 
@@ -130,11 +109,11 @@ export default function Dashboard() {
           <View style={styles.componentHeader}>
             <Text style={styles.componentText}>Time Table</Text>
             <View style={styles.headerLine}></View>
-            <Text style={styles.timeTableDate}>{timeTable[0].date}</Text>
+            <Text style={styles.timeTableDate}>{timetableData[0].date}</Text>
           </View>
 
           <View style={styles.periodGrid}>
-            {timeTable[0].schedule.map((item) => (
+            {timetableData[0].schedule.map((item) => (
               <View key={item.Period} style={styles.periodCard}>
                 <Text style={styles.periodNumber}>{item.Period}</Text>
 
@@ -151,7 +130,7 @@ export default function Dashboard() {
 
             {/*  Empty slots to maintain 3 × 2  */}
             {Array.from({
-              length: 6 - timeTable[0].schedule.length,
+              length: 6 - timetableData[0].schedule.length,
             }).map((_, index) => (
               <View key={`empty-${index}`} style={[styles.periodCard, styles.emptyPeriod]} />
             ))}
@@ -163,7 +142,7 @@ export default function Dashboard() {
             <View style={styles.headerLine}></View>
           </View>
           <View style={styles.quickActionContainer}>
-            {tiles.map((item, index) => (
+            {tilesData.slice(0, 8).map((item, index) => (
               <Pressable key={index} style={({ pressed }) => [styles.category, pressed && { opacity: 0.9, transform: [{ scale: 0.98 }] }]}>
                 <View style={styles.categoryIcon}>
                   <Box color="#f08a27" size={24} />
@@ -172,6 +151,7 @@ export default function Dashboard() {
               </Pressable>
             ))}
           </View>
+
           <Pressable style={({ pressed }) => [styles.viewAllButton, pressed && { opacity: 0.8 }]}>
             <Text style={styles.viewAllText}>View All</Text>
             <ArrowRight color="#a78104ff" size={20} />
@@ -190,10 +170,8 @@ export default function Dashboard() {
             <UpcomingEventsCard title="Exams" total={8} due={5} onViewAll={() => console.log('View all exams')} />
 
             {/* Holiday Card - minimal */}
-            <UpcomingEventsCard title="Holidays" onViewAll={() => console.log('View all holidays')} />
 
             {/* Events Card */}
-            <UpcomingEventsCard title="Events" onViewAll={() => console.log('View all events')} />
           </View>
         </View>
       </ScrollView>

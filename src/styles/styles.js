@@ -1,5 +1,89 @@
 import { StyleSheet } from 'react-native';
 
+export const AlertCardStyle = StyleSheet.create({
+  card: {
+    height: 120,
+    borderWidth: 2,
+    borderRadius: 18,
+    overflow: 'hidden',
+
+    flexDirection: 'row',
+    alignItems: 'center',
+
+    paddingLeft: 14,
+    paddingRight: 12,
+
+    borderBottomWidth: 5,
+
+    position: 'relative',
+  },
+
+  decorativeWave: {
+    position: 'absolute',
+    right: -5,
+    top: -5,
+  },
+  decorativeCircle: {
+    position: 'absolute',
+
+    width: 115,
+    height: 115,
+
+    borderRadius: 60,
+
+    left: -10,
+    top: -35,
+
+    opacity: 0.12,
+  },
+
+  content: {
+    flex: 1,
+    paddingRight: 8,
+    zIndex: 2,
+  },
+
+  title: {
+    fontSize: 14,
+    fontWeight: '700',
+    marginBottom: 5,
+  },
+
+  description: {
+    fontSize: 12,
+    lineHeight: 16,
+    color: '#343434',
+  },
+
+  actionButton: {
+    minWidth: 68,
+    height: 34,
+
+    paddingHorizontal: 10,
+
+    borderRadius: 18,
+
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+
+    gap: 2,
+
+    zIndex: 3,
+  },
+
+  actionText: {
+    color: '#FFFFFF',
+    fontSize: 11,
+    fontWeight: '600',
+  },
+
+  pressed: {
+    opacity: 0.88,
+    transform: [{ scale: 0.98 }],
+  },
+});
+
 export const DashboardStyles = StyleSheet.create({
   container: {
     flex: 1,
@@ -16,7 +100,6 @@ export const DashboardStyles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingBottom: '4%',
   },
 
   profileSection: {
@@ -66,7 +149,7 @@ export const DashboardStyles = StyleSheet.create({
   //Component header
   componentHeader: {
     paddingLeft: '4%',
-    marginBottom: '2%',
+    marginBottom: '4%',
     marginTop: '5%',
   },
   componentText: {
@@ -74,66 +157,16 @@ export const DashboardStyles = StyleSheet.create({
     fontWeight: '500',
   },
   headerLine: {
-    borderWidth: 2,
-    maxWidth: '10%',
+    borderWidth: 1.5,
+    maxWidth: '8%',
     marginTop: 2,
     borderColor: '#000000ff',
+    backgroundColor: '#000000ff',
   },
 
-  // Alert Card
-
+  //Alert container
   alertContainer: {
-    paddingHorizontal: '4%',
-    paddingVertical: '2%',
-    gap: 12,
-  },
-
-  alertCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-
-    width: '100%',
-
-    borderRadius: 20,
-    paddingHorizontal: '4%',
-    paddingver: '0.5%',
-    borderWidth: 3,
-
-    minHeight: 110,
-
-    borderBottomWidth: 4,
-  },
-
-  alertContent: {
-    flex: 1,
-  },
-
-  alertTitle: {
-    fontSize: 17,
-    fontWeight: '700',
-  },
-
-  alertDescription: {
-    color: '#222',
-    fontSize: 14,
-    fontWeight: '300',
-    marginTop: 4,
-  },
-
-  alertButton: {
-    borderRadius: 15,
-    alignItems: 'center',
-    justifyContent: 'center',
-    flexShrink: 0,
-  },
-
-  alertButtonText: {
-    width: '100%',
-    paddingVertical: 5,
-    paddingHorizontal: 6,
-    fontSize: 12,
-    fontWeight: '500',
-    color: '#FFFFFF',
+    gap: 10,
   },
 
   //Timetable
