@@ -51,7 +51,7 @@ const UpcomingEventsCard: React.FC<EventCardProps> = ({ title, pending, submitte
 const styles = StyleSheet.create({
   cardContainer: {
     position: 'relative',
-    marginVertical: 8,
+    marginVertical: 2,
     marginHorizontal: 10,
     borderRadius: 12,
     overflow: 'hidden',

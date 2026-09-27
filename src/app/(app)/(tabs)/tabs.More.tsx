@@ -63,8 +63,8 @@ export default function More() {
           styles.scrollContent,
           {
             paddingTop: insets.top - 30,
-            paddingLeft: insets.left + 17,
-            paddingRight: insets.right + 17,
+            paddingLeft: insets.left + 12,
+            paddingRight: insets.right + 12,
             paddingBottom: insets.bottom + 90,
           },
         ]}

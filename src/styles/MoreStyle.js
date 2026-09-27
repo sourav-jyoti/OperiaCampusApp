@@ -31,17 +31,16 @@ export const MoreSTyle = StyleSheet.create({
     marginTop: '5%',
   },
   componentText: {
-    fontSize: 16,
-    fontWeight: '500',
+    fontFamily: ' Roboto_300Light,',
+    fontSize: 18,
   },
   headerLine: {
-    borderWidth: 1.5,
+    borderWidth: 1,
     maxWidth: '8%',
     marginTop: 2,
-    borderColor: '#000000ff',
-    backgroundColor: '#000000ff',
+    borderColor: '#0b2178ff',
+    backgroundColor: '#0b2178ff',
   },
-
   ///
   quickActionContainer: {
     width: '100%',
@@ -63,7 +62,7 @@ export const MoreSTyle = StyleSheet.create({
   categoryIcon: {
     width: 50,
     height: 45,
-    borderRadius: 13,
+    borderRadius: 10,
     backgroundColor: '#f3f8fc',
     alignItems: 'center',
     justifyContent: 'center',
@@ -76,6 +75,6 @@ export const MoreSTyle = StyleSheet.create({
     textAlign: 'center',
     fontSize: 12,
     color: '#222',
-    fontWeight: '400',
+    fontFamily: 'Roboto_400Regular',
   },
 });

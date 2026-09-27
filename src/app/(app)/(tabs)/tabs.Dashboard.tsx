@@ -3,8 +3,8 @@ import { ArrowRight, Bell, Box } from 'lucide-react-native';
 import { Pressable, ScrollView, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { useTabBarScroll } from '@/hooks/useTabBarScroll';
 import UpcomingEventsCard from '@/components/component.UpcomingEventCard';
+import { useTabBarScroll } from '@/hooks/useTabBarScroll';
 
 import { useScreenSize } from '../../../hooks/responsiveSize';
 import { DashboardStyles } from '../../../styles/styles';
@@ -62,7 +62,7 @@ export default function Dashboard() {
           style={{
             paddingLeft: insets.left + 3,
             paddingRight: insets.right + 3,
-            paddingBottom: insets.bottom,
+            paddingBottom: insets.bottom - 40,
           }}
         >
           {/**Alert */}
@@ -107,9 +107,11 @@ export default function Dashboard() {
 
           {/**TimeTable */}
           <View style={styles.componentHeader}>
-            <Text style={styles.componentText}>Time Table</Text>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5 }}>
+              <Text style={styles.componentText}>Time Table</Text>
+              <Text style={styles.timeTableDate}>{timetableData[0].date}</Text>
+            </View>
             <View style={styles.headerLine}></View>
-            <Text style={styles.timeTableDate}>{timetableData[0].date}</Text>
           </View>
 
           <View style={styles.periodGrid}>
