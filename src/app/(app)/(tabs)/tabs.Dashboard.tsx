@@ -1,4 +1,5 @@
 import { LinearGradient } from 'expo-linear-gradient';
+import { useRouter } from 'expo-router';
 import { ArrowRight, Bell, Box } from 'lucide-react-native';
 import { Pressable, ScrollView, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -25,7 +26,7 @@ export default function Dashboard() {
   const insets = useSafeAreaInsets();
   const { width, height } = useScreenSize();
   const { onScroll, scrollEventThrottle } = useTabBarScroll();
-
+  const router = useRouter();
   const CARD_WIDTH = Math.round(width * 0.88);
   const CARD_GAP = 10;
   const CARD_SPACING = (width - CARD_WIDTH) / 2;
@@ -53,7 +54,7 @@ export default function Dashboard() {
               </View>
             </Pressable>
 
-            <Pressable style={styles.helpButton}>
+            <Pressable style={styles.NotificatioButton} onPress={() => router.push('/(Tiles)/Notifications')}>
               <Bell size={16} color="#222" />
             </Pressable>
           </View>
@@ -145,7 +146,15 @@ export default function Dashboard() {
           </View>
           <View style={styles.quickActionContainer}>
             {tilesData.slice(0, 8).map((item, index) => (
-              <Pressable key={index} style={({ pressed }) => [styles.category, pressed && { opacity: 0.9, transform: [{ scale: 0.98 }] }]}>
+              <Pressable
+                key={index}
+                onPress={() => {
+                  if (item.path) {
+                    router.push(item.path);
+                  }
+                }}
+                style={({ pressed }) => [styles.category, pressed && { opacity: 0.9, transform: [{ scale: 0.98 }] }]}
+              >
                 <View style={styles.categoryIcon}>
                   <Box color="#f08a27" size={24} />
                 </View>
@@ -154,7 +163,7 @@ export default function Dashboard() {
             ))}
           </View>
 
-          <Pressable style={({ pressed }) => [styles.viewAllButton, pressed && { opacity: 0.8 }]}>
+          <Pressable onPress={() => router.navigate('/(app)/(tabs)/tabs.More')} style={({ pressed }) => [styles.viewAllButton, pressed && { opacity: 0.8 }]}>
             <Text style={styles.viewAllText}>View All</Text>
             <ArrowRight color="#a78104ff" size={20} />
           </Pressable>

@@ -21,12 +21,13 @@ import {
 } from 'react-native';
 
 import AnimatedSlidingNumber from '../animated/AnimatedSlidingNumber';
-import { AgendaItem } from './AgendaItem';
+import { CalendarCategoryContent } from './CalendarCategoryContent';
 import { CalendarHeader } from './CalendarHeader';
+import { CategoryTabBar } from './CategoryTabBar';
+import type { CalendarCategoryId } from './calendar-categories';
+import { dateHasCategoryData } from './category-mock-data';
 import { getDateString, getTodayString, parseDateString } from './date-helpers';
 import { DaySelector } from './DaySelector';
-import { EmptyDay } from './EmptyDay';
-import { EVENT_TYPE_COLORS, mockCampusEvents } from './mock-data';
 import { MonthPicker } from './MonthPicker';
 import { getAgendaColors } from './theme';
 import type { CampusEvent } from './types';
@@ -73,7 +74,8 @@ export function CalendarAgenda({
 }: CalendarAgendaProps) {
   const today = useMemo(() => getTodayString(), []);
   const [selectedDate, setSelectedDate] = useState<string>(today);
-  const [events, setEvents] = useState<CampusEvent[]>(mockCampusEvents);
+  const [selectedCategory, setSelectedCategory] =
+    useState<CalendarCategoryId>('timetable');
   const [showMonthPicker, setShowMonthPicker] = useState(false);
 
   const scrollViewRef = useRef<ScrollView>(null);
@@ -91,21 +93,15 @@ export function CalendarAgenda({
   // Enrich with completion status
   const daysWithStatus = useMemo(() => {
     return baseDays.map((day) => {
-      const dayEvents = events.filter((e) => e.date === day.date);
-      const completable = dayEvents.filter(
-        (e) => e.type === 'assignment' || e.type === 'reminder'
-      );
-      const completed = completable.filter((e) => e.completed);
-      const progress =
-        completable.length > 0 ? completed.length / completable.length : 0;
+      const hasData = dateHasCategoryData(day.date);
       return {
         ...day,
-        hasTodos: dayEvents.length > 0,
-        hasCompleted: progress === 1 && completable.length > 0,
-        completionProgress: progress,
+        hasTodos: hasData,
+        hasCompleted: false,
+        completionProgress: 0,
       };
     });
-  }, [baseDays, events]);
+  }, [baseDays]);
 
   // Current day index (for the "DAY N / total" display)
   const currentDayIndex = useMemo(() => {
@@ -138,36 +134,6 @@ export function CalendarAgenda({
       scrollToDate(date);
     },
     [scrollToDate, onDateChange]
-  );
-
-  const handleToggleComplete = useCallback((event: CampusEvent) => {
-    setEvents((prev) =>
-      prev.map((e) =>
-        e.id === event.id ? { ...e, completed: !e.completed } : e
-      )
-    );
-  }, []);
-
-  const handleEventPress = useCallback(
-    (event: CampusEvent) => {
-      onEventPress?.(event);
-    },
-    [onEventPress]
-  );
-
-  const getEventsForDate = useCallback(
-    (date: string): CampusEvent[] => {
-      return events
-        .filter((e) => e.date === date)
-        .sort((a, b) => {
-          if (a.time && b.time) return a.time.localeCompare(b.time);
-          if (a.time) return -1;
-          if (b.time) return 1;
-          const pOrder = { high: 0, medium: 1, low: 2 };
-          return pOrder[a.priority] - pOrder[b.priority];
-        });
-    },
-    [events]
   );
 
   const handleScrollEndDrag = useCallback(
@@ -221,32 +187,9 @@ export function CalendarAgenda({
     [onDateChange, scrollToDate]
   );
 
-  // Group events by type label
-  const TYPE_ORDER = ['exam', 'class', 'assignment', 'reminder', 'event', 'holiday'];
-
   const renderDayContent = (dayIndex: number) => {
     const day = daysWithStatus[dayIndex];
     if (!day) return null;
-
-    const dayEvents = getEventsForDate(day.date);
-
-    // Group by type for section headings
-    const grouped: Record<string, CampusEvent[]> = {};
-    dayEvents.forEach((e) => {
-      if (!grouped[e.type]) grouped[e.type] = [];
-      grouped[e.type].push(e);
-    });
-
-    const sections = TYPE_ORDER.filter((t) => grouped[t]);
-
-    const SECTION_LABELS: Record<string, string> = {
-      exam: '📝  EXAMS',
-      class: '🏫  CLASSES',
-      assignment: '📌  ASSIGNMENTS',
-      reminder: '🔔  REMINDERS',
-      event: '🎉  EVENTS',
-      holiday: '🌟  HOLIDAYS',
-    };
 
     return (
       <View
@@ -257,28 +200,11 @@ export function CalendarAgenda({
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.eventList}
         >
-          {dayEvents.length > 0 ? (
-            sections.map((type) => (
-              <View key={type} style={styles.section}>
-                <Text
-                  style={[styles.sectionTitle, { color: EVENT_TYPE_COLORS[type] }]}
-                >
-                  {SECTION_LABELS[type] ?? type.toUpperCase()}
-                </Text>
-                {grouped[type].map((ev) => (
-                  <AgendaItem
-                    key={ev.id}
-                    item={ev}
-                    isDarkMode={isDarkMode}
-                    onPress={handleEventPress}
-                    onToggleComplete={handleToggleComplete}
-                  />
-                ))}
-              </View>
-            ))
-          ) : (
-            <EmptyDay isDarkMode={isDarkMode} />
-          )}
+          <CalendarCategoryContent
+            date={day.date}
+            category={selectedCategory}
+            isDarkMode={isDarkMode}
+          />
         </ScrollView>
       </View>
     );
@@ -318,6 +244,12 @@ export function CalendarAgenda({
         selectedDate={selectedDate}
         isDarkMode={isDarkMode}
         onDayPress={handleDayPress}
+      />
+
+      <CategoryTabBar
+        selectedCategory={selectedCategory}
+        isDarkMode={isDarkMode}
+        onCategoryChange={setSelectedCategory}
       />
 
       {/* Horizontal pager */}
@@ -380,16 +312,7 @@ const styles = StyleSheet.create({
   },
   eventList: {
     paddingBottom: 100,
-  },
-  section: {
-    marginBottom: 12,
-  },
-  sectionTitle: {
-    fontSize: 12,
-    fontWeight: '700',
-    letterSpacing: 1,
-    marginBottom: 8,
-    marginTop: 4,
+    paddingTop: 16,
   },
 });
 

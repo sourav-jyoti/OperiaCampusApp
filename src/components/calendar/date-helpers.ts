@@ -70,3 +70,12 @@ export function isToday(dateString: string): boolean {
     return dateString === getTodayString();
 }
 
+/**
+ * Heading for category content, e.g. "Today - 28 March 2026"
+ */
+export function formatDayHeading(dateString: string): string {
+    const { year, month, day } = parseDateString(dateString);
+    const prefix = isToday(dateString) ? "Today" : `${MONTHS[month]} ${day}`;
+    return `${prefix} - ${day} ${MONTHS[month]} ${year}`;
+}
+

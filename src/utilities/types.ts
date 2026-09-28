@@ -33,40 +33,31 @@ export interface BannerNotice {
     Background: string;
   };
 }
-
-export interface Data {
+export interface Student {
   id: string;
+  name: string;
+  rollNo: string;
+  avatar?: string;
+  gender?: 'male' | 'female';
+}
+
+export type AttendanceStatus = 'present' | 'absent';
+
+export interface StudentAttendanceRecord {
+  student: Student;
+  status: AttendanceStatus;
+}
+
+export type AssignmentStatus = 'pending' | 'submitted';
+
+export interface Assignment {
+  id: string;
+  subject: string;
   title: string;
-  description?: string;
-  date: string; // YYYY-MM-DD format
-  time?: string; // HH:mm format
-  endTime?: string; // HH:mm format
-  completed: boolean;
-  priority: 'low' | 'medium' | 'high';
-  category?: string;
-  categoryColor?: string;
-}
-
-export interface DayData {
-  date: string;
-  Datas: Data[];
-}
-
-export interface MarkedDate {
-  marked?: boolean;
-  dotColor?: string;
-  selected?: boolean;
-  selectedColor?: string;
-  selectedTextColor?: string;
-  dots?: Array<{ color: string; key: string }>;
-}
-
-export interface MarkedDates {
-  [date: string]: MarkedDate;
-}
-
-export interface WeekDay {
-  date: string;
-  moment: Date;
-  isToday: boolean;
+  dueDate: string;
+  fileType: 'doc' | 'pdf' | 'ppt' | 'zip';
+  fileName: string;
+  status: AssignmentStatus;
+  submittedAt?: string;
+  totalMarks?: number;
 }

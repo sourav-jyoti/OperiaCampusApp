@@ -81,7 +81,15 @@ export default function More() {
 
               <View style={styles.quickActionContainer}>
                 {group.items.map((item, index) => (
-                  <Pressable key={`${item.title}-${index}`} style={({ pressed }) => [styles.category, pressed && { opacity: 0.9, transform: [{ scale: 0.98 }] }]}>
+                  <Pressable
+                    key={`${item.title}-${index}`}
+                    onPress={() => {
+                      if (item.path) {
+                        router.push(item.path);
+                      }
+                    }}
+                    style={({ pressed }) => [styles.category, pressed && { opacity: 0.9, transform: [{ scale: 0.98 }] }]}
+                  >
                     <View style={styles.categoryIcon}>
                       <Box color="#f08a27" size={24} />
                     </View>

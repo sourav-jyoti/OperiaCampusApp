@@ -9,9 +9,17 @@ import { getAgendaColors } from './theme';
 
 interface EmptyDayProps {
   isDarkMode: boolean;
+  title?: string;
+  subtitle?: string;
+  emoji?: string;
 }
 
-export function EmptyDay({ isDarkMode }: EmptyDayProps) {
+export function EmptyDay({
+  isDarkMode,
+  title = 'No events for this day',
+  subtitle = 'Enjoy your free time!',
+  emoji = '📅',
+}: EmptyDayProps) {
   const colors = getAgendaColors(isDarkMode);
 
   return (
@@ -26,12 +34,10 @@ export function EmptyDay({ isDarkMode }: EmptyDayProps) {
         },
       ]}
     >
-      <Text style={styles.emoji}>📅</Text>
-      <Text style={[styles.title, { color: colors.textPrimary }]}>
-        No events for this day
-      </Text>
+      <Text style={styles.emoji}>{emoji}</Text>
+      <Text style={[styles.title, { color: colors.textPrimary }]}>{title}</Text>
       <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
-        Enjoy your free time!
+        {subtitle}
       </Text>
     </View>
   );

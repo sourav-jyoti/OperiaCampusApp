@@ -53,7 +53,7 @@ export const DashboardStyles = StyleSheet.create({
     marginTop: 1,
   },
 
-  helpButton: {
+  NotificatioButton: {
     width: 30,
     height: 30,
     borderRadius: 20,
