@@ -3,26 +3,26 @@ import type { Assignment, BannerNotice, Student, Tiles, TimeTable } from './type
 export const tilesData: Tiles[] = [
   // Administration
   { category: 'Administration', title: 'Leave', icon: 'CalendarOff', badge: '1', path: '/(Tiles)/LeaveRequest' },
-  { category: 'Administration', title: 'Duties', icon: 'ClipboardCheck', badge: '1', path: '' },
-  { category: 'Administration', title: 'Events', icon: 'CalendarDays', badge: '2', path: '' },
-  { category: 'Administration', title: 'Meetings', icon: 'Users', badge: '1', path: '' },
+  { category: 'Administration', title: 'Duties', icon: 'ClipboardCheck', badge: '1', path: '/(Tiles)/Duties' },
+  { category: 'Administration', title: 'Events', icon: 'CalendarDays', badge: '2', path: '/(Tiles)/Events' },
+  { category: 'Administration', title: 'Meetings', icon: 'Users', badge: '1', path: '/(Tiles)/Meetings' },
   // Academics
   { category: 'Academics', title: 'Assignments', icon: 'FileText', badge: '3', path: '/(Tiles)/Assignments' },
-  { category: 'Academics', title: 'Subjects', icon: 'BookOpen', badge: '', path: '' },
-  { category: 'Academics', title: 'Study Material', icon: 'BookMarked', badge: '', path: '' },
+  { category: 'Academics', title: 'Subjects', icon: 'BookOpen', badge: '', path: '/(Tiles)/Subjects' },
+  { category: 'Academics', title: 'Study Material', icon: 'BookMarked', badge: '', path: '/(Tiles)/StudyMaterial' },
   // Students
-  { category: 'students', title: 'Student Profile', icon: 'UserRound', badge: '', path: '' },
+  { category: 'students', title: 'Student Profile', icon: 'UserRound', badge: '', path: '/(Tiles)/StudentProfile' },
   { category: 'students', title: 'Attendance', icon: 'CalendarCheck', badge: '', path: '/(Tiles)/MarkAttendance' },
-  { category: 'students', title: 'Student Review', icon: 'BarChart3', badge: '', path: '' },
+  { category: 'students', title: 'Student Review', icon: 'BarChart3', badge: '', path: '/(Tiles)/StudentReview' },
   // Examination
-  { category: 'Examination', title: 'Create Exam', icon: 'FilePlus', badge: '', path: '' },
+  { category: 'Examination', title: 'Create Exam', icon: 'FilePlus', badge: '', path: '/(Tiles)/CreateExam' },
   { category: 'Examination', title: 'Upload Marks', icon: 'Upload', badge: '', path: '/(Tiles)/UploadMarks' },
   { category: 'Examination', title: 'Results', icon: 'ChartColumn', badge: '', path: '/(Tiles)/GenerateReport' },
   // Timetable
-  { category: 'Timetable', title: 'View Timetable', icon: 'Calendar', badge: '', path: '' },
-  { category: 'Timetable', title: 'Manage Timetable', icon: 'CalendarCog', badge: '', path: '' },
-  { category: 'Timetable', title: 'Class Routine', icon: 'Clock', badge: '', path: '' },
-  { category: 'Timetable', title: 'Room Allocation', icon: 'DoorOpen', badge: '', path: '' },
+  { category: 'Timetable', title: 'View Timetable', icon: 'Calendar', badge: '', path: '/(Tiles)/ViewTimetable' },
+  { category: 'Timetable', title: 'Manage Timetable', icon: 'CalendarCog', badge: '', path: '/(Tiles)/ManageTimetable' },
+  { category: 'Timetable', title: 'Class Routine', icon: 'Clock', badge: '', path: '/(Tiles)/ClassRoutine' },
+  { category: 'Timetable', title: 'Room Allocation', icon: 'DoorOpen', badge: '', path: '/(Tiles)/RoomAllocation' },
   // AI Assistant
   { category: 'AI Assistant', title: 'AI Chat Bot', icon: 'Bot', badge: 'AI', path: '/(Tiles)/AIChatBot' },
 ];

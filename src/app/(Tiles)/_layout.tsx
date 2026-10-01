@@ -24,6 +24,10 @@ export default function TilesLayout() {
       <Stack.Screen name="ScheduleRequests" />
       <Stack.Screen name="StudentFeedback" />
       <Stack.Screen name="Duties" />
+      <Stack.Screen name="ViewTimetable" />
+      <Stack.Screen name="ManageTimetable" />
+      <Stack.Screen name="ClassRoutine" />
+      <Stack.Screen name="RoomAllocation" />
       <Stack.Screen name="Notifications" />
       <Stack.Screen name="AIChatBot" />
     </Stack>

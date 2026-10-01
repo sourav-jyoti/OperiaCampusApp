@@ -39,13 +39,13 @@ const profile = {
 
 const quickActions = [
   { title: 'Leave',           icon: CalendarOff,   color: '#E8F5E9', iconColor: '#388E3C', path: '/(Tiles)/LeaveRequest' },
-  { title: 'Duties',          icon: ClipboardCheck, color: '#FFF3E0', iconColor: '#E65100', path: '' },
-  { title: 'Events',          icon: CalendarDays,   color: '#FCE4EC', iconColor: '#C2185B', path: '' },
-  { title: 'Meetings',        icon: Users,          color: '#F3E5F5', iconColor: '#7B1FA2', path: '' },
+  { title: 'Duties',          icon: ClipboardCheck, color: '#FFF3E0', iconColor: '#E65100', path: '/(Tiles)/Duties' },
+  { title: 'Events',          icon: CalendarDays,   color: '#FCE4EC', iconColor: '#C2185B', path: '/(Tiles)/Events' },
+  { title: 'Meetings',        icon: Users,          color: '#F3E5F5', iconColor: '#7B1FA2', path: '/(Tiles)/Meetings' },
   { title: 'Assignments',     icon: FileText,       color: '#E3F2FD', iconColor: '#1565C0', path: '/(Tiles)/Assignments' },
-  { title: 'Subjects',        icon: BookOpen,       color: '#FFF8E1', iconColor: '#F9A825', path: '' },
-  { title: 'Study Material',  icon: BookMarked,     color: '#E0F2F1', iconColor: '#00695C', path: '' },
-  { title: 'Student Profile', icon: UserRound,      color: '#E8EAF6', iconColor: '#283593', path: '' },
+  { title: 'Subjects',        icon: BookOpen,       color: '#FFF8E1', iconColor: '#F9A825', path: '/(Tiles)/Subjects' },
+  { title: 'Study Material',  icon: BookMarked,     color: '#E0F2F1', iconColor: '#00695C', path: '/(Tiles)/StudyMaterial' },
+  { title: 'Student Profile', icon: UserRound,      color: '#E8EAF6', iconColor: '#283593', path: '/(Tiles)/StudentProfile' },
 ] as const;
 
 const timetableMock = [
