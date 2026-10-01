@@ -2,16 +2,52 @@ import { mockStudents } from '@/utilities/mockdata';
 import type { AttendanceStatus, Student } from '@/utilities/types';
 import * as Haptics from 'expo-haptics';
 import { useRouter } from 'expo-router';
-import { ArrowLeft, Calendar as CalendarIcon, Check, CheckCircle2, GraduationCap, Users2, X, XCircle } from 'lucide-react-native';
+import {
+  ArrowLeft,
+  Calendar as CalendarIcon,
+  Check,
+  CheckCircle2,
+  GraduationCap,
+  Search,
+  Users2,
+  X,
+  XCircle,
+} from 'lucide-react-native';
 import { useMemo, useState } from 'react';
-import { Alert, FlatList, Pressable, StatusBar, StyleSheet, Text, View } from 'react-native';
+import {
+  Alert,
+  FlatList,
+  Pressable,
+  StatusBar,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+} from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+
+// Cycling pastel avatar colors
+const AVATAR_COLORS = [
+  { bg: '#FFF3E0', text: '#F28C28' },
+  { bg: '#EDE9FE', text: '#6C4DFF' },
+  { bg: '#E8F5E9', text: '#2E8B3C' },
+  { bg: '#FEF3C7', text: '#B45309' },
+  { bg: '#FCE7F3', text: '#BE185D' },
+];
+
+function getInitials(name: string): string {
+  return name
+    .split(' ')
+    .map((n) => n[0])
+    .join('')
+    .slice(0, 2)
+    .toUpperCase();
+}
 
 export default function MarkAttendanceScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
 
-  // Header Details
   const todayDateFormatted = useMemo(() => {
     const now = new Date();
     return now.toLocaleDateString('en-US', {
@@ -22,26 +58,38 @@ export default function MarkAttendanceScreen() {
     });
   }, []);
 
-  const classInfo = {
-    className: 'VI',
-    section: 'Section A',
-  };
+  const classInfo = { className: 'VI', section: 'Section A' };
 
-  // State: attendance mapping studentId -> 'present' | 'absent'
+  // Attendance state: studentId → 'present' | 'absent'
   const [attendance, setAttendance] = useState<Record<string, AttendanceStatus>>(() => {
     const initial: Record<string, AttendanceStatus> = {};
-    mockStudents.forEach((student) => {
-      initial[student.id] = 'present';
+    mockStudents.forEach((s) => {
+      initial[s.id] = 'present';
     });
     return initial;
   });
 
+  // Search state
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchVisible, setSearchVisible] = useState(false);
+
   const totalCount = mockStudents.length;
-  const presentCount = useMemo(() => Object.values(attendance).filter((s) => s === 'present').length, [attendance]);
+  const presentCount = useMemo(
+    () => Object.values(attendance).filter((s) => s === 'present').length,
+    [attendance]
+  );
   const absentCount = totalCount - presentCount;
 
-  // Toggle individual student
-  const toggleStudentStatus = (studentId: string) => {
+  // Filtered list
+  const filteredStudents = useMemo(() => {
+    const q = searchQuery.trim().toLowerCase();
+    if (!q) return mockStudents;
+    return mockStudents.filter(
+      (s) => s.name.toLowerCase().includes(q) || s.rollNo.toLowerCase().includes(q)
+    );
+  }, [searchQuery]);
+
+  const toggleStudent = (studentId: string) => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     setAttendance((prev) => ({
       ...prev,
@@ -49,77 +97,75 @@ export default function MarkAttendanceScreen() {
     }));
   };
 
-  // Mark all present
   const handleMarkAllPresent = () => {
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-    setAttendance(() => {
-      const updated: Record<string, AttendanceStatus> = {};
-      mockStudents.forEach((student) => {
-        updated[student.id] = 'present';
-      });
-      return updated;
+    const updated: Record<string, AttendanceStatus> = {};
+    mockStudents.forEach((s) => {
+      updated[s.id] = 'present';
     });
+    setAttendance(updated);
   };
 
-  // Mark all absent
   const handleMarkAllAbsent = () => {
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
-    setAttendance(() => {
-      const updated: Record<string, AttendanceStatus> = {};
-      mockStudents.forEach((student) => {
-        updated[student.id] = 'absent';
-      });
-      return updated;
+    const updated: Record<string, AttendanceStatus> = {};
+    mockStudents.forEach((s) => {
+      updated[s.id] = 'absent';
     });
+    setAttendance(updated);
   };
 
-  // Submit attendance
   const handleSubmit = () => {
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-    Alert.alert('Attendance Submitted', `Present: ${presentCount}\nAbsent: ${absentCount}\nTotal: ${totalCount}`, [
-      {
-        text: 'Done',
-        onPress: () => router.back(),
-      },
-    ]);
+    Alert.alert(
+      'Attendance Submitted',
+      `Present: ${presentCount}\nAbsent: ${absentCount}\nTotal: ${totalCount}`,
+      [{ text: 'Done', onPress: () => router.back() }]
+    );
   };
 
-  const renderStudentItem = ({ item }: { item: Student; index: number }) => {
+  const renderStudent = ({ item, index }: { item: Student; index: number }) => {
     const isPresent = attendance[item.id] === 'present';
-    const initials = item.name
-      .split(' ')
-      .map((n) => n[0])
-      .join('')
-      .slice(0, 2);
+    const color = AVATAR_COLORS[index % AVATAR_COLORS.length];
 
     return (
-      <View style={[styles.studentCard, isPresent ? styles.studentCardPresent : styles.studentCardAbsent]}>
-        <View style={styles.studentInfoContainer}>
-          <View style={styles.avatarCircle}>
-            <Text style={styles.avatarText}>{initials}</Text>
-          </View>
-          <View style={styles.nameSection}>
-            <Text style={styles.studentName}>{item.name}</Text>
-            <View style={styles.rollBadge}>
-              <Text style={styles.rollText}>{item.rollNo}</Text>
-            </View>
-          </View>
+      <View style={[styles.studentRow, index > 0 && styles.studentRowBorder]}>
+        {/* Left accent bar */}
+        <View style={[styles.statusAccent, { backgroundColor: isPresent ? '#2E8B3C' : '#E53935' }]} />
+
+        {/* Avatar */}
+        <View style={[styles.avatar, { backgroundColor: color.bg }]}>
+          <Text style={[styles.avatarText, { color: color.text }]}>{getInitials(item.name)}</Text>
         </View>
 
-        {/* Toggle Button */}
+        {/* Name + Roll */}
+        <View style={styles.studentInfo}>
+          <Text style={styles.studentName} numberOfLines={1}>
+            {item.name}
+          </Text>
+          <Text style={styles.rollNo}>{item.rollNo}</Text>
+        </View>
+
+        {/* Toggle Pill */}
         <Pressable
-          onPress={() => toggleStudentStatus(item.id)}
-          style={({ pressed }) => [styles.statusToggleButton, isPresent ? styles.presentButton : styles.absentButton, pressed && { opacity: 0.85, transform: [{ scale: 0.96 }] }]}
+          onPress={() => toggleStudent(item.id)}
+          style={({ pressed }) => [
+            styles.statusPill,
+            isPresent ? styles.presentPill : styles.absentPill,
+            pressed && { opacity: 0.82, transform: [{ scale: 0.94 }] },
+          ]}
+          accessibilityLabel={isPresent ? 'Mark absent' : 'Mark present'}
+          accessibilityRole="button"
         >
           {isPresent ? (
             <>
-              <Check size={15} color="#FFFFFF" strokeWidth={2.5} />
-              <Text style={styles.statusButtonText}>Present</Text>
+              <Check size={13} color="#FFFFFF" strokeWidth={2.5} />
+              <Text style={styles.pillText}>Present</Text>
             </>
           ) : (
             <>
-              <X size={15} color="#FFFFFF" strokeWidth={2.5} />
-              <Text style={styles.statusButtonText}>Absent</Text>
+              <X size={13} color="#FFFFFF" strokeWidth={2.5} />
+              <Text style={styles.pillText}>Absent</Text>
             </>
           )}
         </Pressable>
@@ -129,7 +175,7 @@ export default function MarkAttendanceScreen() {
 
   return (
     <SafeAreaView style={styles.safeArea} edges={['top', 'left', 'right']}>
-      <StatusBar barStyle="dark-content" backgroundColor="#f9f9eaff" />
+      <StatusBar barStyle="dark-content" backgroundColor="#f9f9ea" />
 
       {/* Top Navigation Bar */}
       <View style={styles.topHeader}>
@@ -140,29 +186,29 @@ export default function MarkAttendanceScreen() {
           accessibilityLabel="Back"
           accessibilityRole="button"
         >
-          <ArrowLeft size={20} color="#222" />
+          <ArrowLeft size={20} color="#172033" />
         </Pressable>
         <Text style={styles.navTitle}>Mark Attendance</Text>
         <View style={{ width: 36 }} />
       </View>
 
       <FlatList
-        data={mockStudents}
+        data={filteredStudents}
         keyExtractor={(item) => item.id}
-        renderItem={renderStudentItem}
-        contentContainerStyle={[styles.listContent, { paddingBottom: insets.bottom + 90 }]}
+        renderItem={renderStudent}
+        contentContainerStyle={[styles.listContent, { paddingBottom: insets.bottom + 92 }]}
         showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
         ListHeaderComponent={
           <>
-            {/* Header: Class, Section, Date */}
-
-            <View style={styles.infoCard}>
-              <View style={styles.infoRowTop}>
+            {/* ── Attendance Details Card ── */}
+            <View style={styles.detailsCard}>
+              {/* Date Row */}
+              <View style={styles.dateRow}>
                 <View style={styles.dateBadge}>
-                  <CalendarIcon size={15} color="#a78104" />
+                  <CalendarIcon size={14} color="#F28C28" />
                   <Text style={styles.dateBadgeText}>{todayDateFormatted}</Text>
                 </View>
-
                 <View style={styles.todayPill}>
                   <View style={styles.todayDot} />
                   <Text style={styles.todayPillText}>Today</Text>
@@ -171,97 +217,149 @@ export default function MarkAttendanceScreen() {
 
               <View style={styles.cardDivider} />
 
-              <View style={styles.classDetailsRow}>
-                <View style={styles.detailBox}>
-                  <View style={styles.detailIconCircle}>
-                    <GraduationCap size={16} color="#8b4a0d" />
+              {/* Class & Section */}
+              <View style={styles.classRow}>
+                <View style={styles.classBox}>
+                  <View style={styles.classIconBox}>
+                    <GraduationCap size={15} color="#F28C28" />
                   </View>
                   <View>
-                    <Text style={styles.detailLabel}>Class</Text>
-                    <Text style={styles.detailValue}>{classInfo.className}</Text>
+                    <Text style={styles.classLabel}>Class</Text>
+                    <Text style={styles.classValue}>{classInfo.className}</Text>
                   </View>
                 </View>
-
-                <View style={styles.detailBox}>
-                  <View style={styles.detailIconCircle}>
-                    <Users2 size={16} color="#8b4a0d" />
+                <View style={styles.classBoxSep} />
+                <View style={styles.classBox}>
+                  <View style={styles.classIconBox}>
+                    <Users2 size={15} color="#F28C28" />
                   </View>
                   <View>
-                    <Text style={styles.detailLabel}>Section</Text>
-                    <Text style={styles.detailValue}>{classInfo.section}</Text>
+                    <Text style={styles.classLabel}>Section</Text>
+                    <Text style={styles.classValue}>{classInfo.section}</Text>
                   </View>
                 </View>
               </View>
 
-              {/* Attendance Stats Counter */}
-              <View style={styles.statsStrip}>
-                <View style={styles.statCol}>
-                  <Text style={styles.statCount}>{totalCount}</Text>
-                  <Text style={styles.statTitle}>Total</Text>
+              <View style={styles.cardDivider} />
+
+              {/* Stats */}
+              <View style={styles.statsRow}>
+                <View style={styles.statItem}>
+                  <Text style={styles.statNumber}>{totalCount}</Text>
+                  <Text style={styles.statLabel}>Total</Text>
                 </View>
                 <View style={styles.statSep} />
-                <View style={styles.statCol}>
-                  <Text style={[styles.statCount, { color: '#2e7d32' }]}>{presentCount}</Text>
-                  <Text style={styles.statTitle}>Present</Text>
+                <View style={styles.statItem}>
+                  <Text style={[styles.statNumber, styles.presentColor]}>{presentCount}</Text>
+                  <Text style={styles.statLabel}>Present</Text>
                 </View>
                 <View style={styles.statSep} />
-                <View style={styles.statCol}>
-                  <Text style={[styles.statCount, { color: '#c62828' }]}>{absentCount}</Text>
-                  <Text style={styles.statTitle}>Absent</Text>
+                <View style={styles.statItem}>
+                  <Text style={[styles.statNumber, styles.absentColor]}>{absentCount}</Text>
+                  <Text style={styles.statLabel}>Absent</Text>
                 </View>
               </View>
             </View>
 
-            {/* Toggle Buttons: Mark All Absent or All Present */}
-            <View style={styles.quickActionRow}>
+            {/* ── Bulk Actions ── */}
+            <View style={styles.bulkRow}>
               <Pressable
                 onPress={handleMarkAllPresent}
                 style={({ pressed }) => [
-                  styles.quickActionBtn,
-                  styles.markAllPresentBtn,
-                  presentCount === totalCount && styles.quickActionBtnActive,
-                  pressed && { opacity: 0.85, transform: [{ scale: 0.98 }] },
+                  styles.bulkBtn,
+                  styles.bulkPresentBtn,
+                  presentCount === totalCount && styles.bulkBtnActive,
+                  pressed && { opacity: 0.82, transform: [{ scale: 0.97 }] },
                 ]}
+                accessibilityLabel="Mark all present"
+                accessibilityRole="button"
               >
-                <CheckCircle2 size={17} color="#2e7d32" />
-                <Text style={styles.markAllPresentText}>Mark All Present</Text>
+                <CheckCircle2 size={15} color="#2E8B3C" />
+                <Text style={styles.bulkPresentText}>Mark All Present</Text>
               </Pressable>
-
               <Pressable
                 onPress={handleMarkAllAbsent}
                 style={({ pressed }) => [
-                  styles.quickActionBtn,
-                  styles.markAllAbsentBtn,
-                  absentCount === totalCount && styles.quickActionBtnActive,
-                  pressed && { opacity: 0.85, transform: [{ scale: 0.98 }] },
+                  styles.bulkBtn,
+                  styles.bulkAbsentBtn,
+                  absentCount === totalCount && styles.bulkBtnActive,
+                  pressed && { opacity: 0.82, transform: [{ scale: 0.97 }] },
                 ]}
+                accessibilityLabel="Mark all absent"
+                accessibilityRole="button"
               >
-                <XCircle size={17} color="#c62828" />
-                <Text style={styles.markAllAbsentText}>Mark All Absent</Text>
+                <XCircle size={15} color="#E53935" />
+                <Text style={styles.bulkAbsentText}>Mark All Absent</Text>
               </Pressable>
             </View>
 
-            {/* Students List Header */}
-            <View style={styles.studentsHeaderContainer}>
-              <View style={styles.componentHeaderNoMargin}>
-                <Text style={styles.componentText}>Students ({totalCount})</Text>
-                <View style={styles.headerLine} />
+            {/* ── Students header with search ── */}
+            <View style={styles.studentsHeader}>
+              <Text style={styles.studentsTitle}>Students ({totalCount})</Text>
+              <Pressable
+                onPress={() => {
+                  setSearchVisible((v) => !v);
+                  if (searchVisible) setSearchQuery('');
+                }}
+                style={({ pressed }) => [
+                  styles.searchIconBtn,
+                  searchVisible && styles.searchIconBtnActive,
+                  pressed && { opacity: 0.7 },
+                ]}
+                accessibilityLabel="Search students"
+                accessibilityRole="button"
+              >
+                <Search size={16} color={searchVisible ? '#F2A51A' : '#687080'} />
+              </Pressable>
+            </View>
+
+            {/* Inline search input */}
+            {searchVisible && (
+              <View style={styles.searchBar}>
+                <Search size={15} color="#687080" style={styles.searchIcon} />
+                <TextInput
+                  style={styles.searchInput}
+                  placeholder="Search by name or ID…"
+                  placeholderTextColor="#A0A8B0"
+                  value={searchQuery}
+                  onChangeText={setSearchQuery}
+                  autoFocus
+                  returnKeyType="search"
+                />
+                {searchQuery.length > 0 && (
+                  <Pressable onPress={() => setSearchQuery('')} hitSlop={8}>
+                    <X size={15} color="#687080" />
+                  </Pressable>
+                )}
               </View>
-              <Text style={styles.tapTipText}>Tap to toggle</Text>
+            )}
+
+            {/* Column hint */}
+            <View style={styles.columnHint}>
+              <Text style={styles.columnHintLeft}>Student</Text>
+              <Text style={styles.columnHintRight}>Tap to toggle</Text>
             </View>
           </>
         }
       />
 
-      {/* Floating Bottom Action Bar */}
+      {/* ── Sticky Bottom Bar ── */}
       <View style={[styles.bottomBar, { paddingBottom: Math.max(insets.bottom, 14) }]}>
         <View style={styles.bottomSummary}>
           <Text style={styles.bottomSummaryLabel}>SUMMARY</Text>
           <Text style={styles.bottomSummaryValue}>
-            {presentCount} Present • {absentCount} Absent
+            {presentCount} Present • {absentCount} Absent • {totalCount} Total
           </Text>
         </View>
-        <Pressable onPress={handleSubmit} style={({ pressed }) => [styles.submitButton, pressed && { opacity: 0.88, transform: [{ scale: 0.98 }] }]}>
+        <Pressable
+          onPress={handleSubmit}
+          style={({ pressed }) => [
+            styles.submitButton,
+            pressed && { opacity: 0.88, transform: [{ scale: 0.97 }] },
+          ]}
+          accessibilityLabel="Submit attendance"
+          accessibilityRole="button"
+        >
           <Text style={styles.submitButtonText}>Submit</Text>
         </Pressable>
       </View>
@@ -272,74 +370,58 @@ export default function MarkAttendanceScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#f7f7f1ff',
+    backgroundColor: '#FAFAF5',
   },
+
+  /* Header */
   topHeader: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 16,
     paddingVertical: 10,
-    backgroundColor: '#f9f9eaff',
+    backgroundColor: '#f9f9ea',
+    borderBottomWidth: 1,
+    borderBottomColor: '#EDECDF',
   },
   backButton: {
     width: 36,
     height: 36,
-    borderRadius: 11,
-    backgroundColor: '#ffffff',
+    borderRadius: 10,
+    backgroundColor: '#FFFFFF',
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1,
-    borderColor: '#dcd8c8',
+    borderColor: '#DDD8C8',
   },
   navTitle: {
     fontFamily: 'Roboto_700Bold',
     fontSize: 17,
-    fontWeight: '700',
-    color: '#100707ff',
+    color: '#172033',
   },
+
   listContent: {
     paddingHorizontal: 14,
-    paddingTop: 6,
+    paddingTop: 14,
   },
 
-  // Component Header matching DashboardStyles & MoreSTyle
-  componentHeader: {
-    paddingLeft: '1%',
-    marginBottom: 8,
-    marginTop: 14,
-  },
-  componentHeaderNoMargin: {
-    paddingLeft: '1%',
-  },
-  componentText: {
-    fontFamily: 'Roboto_300Light',
-    fontSize: 18,
-    color: '#222222',
-  },
-  headerLine: {
-    borderWidth: 1,
-    width: 36,
-    marginTop: 3,
-    borderColor: '#0b2178ff',
-    backgroundColor: '#0b2178ff',
-  },
-
-  /* Info Card (warm campus theme) */
-  infoCard: {
-    backgroundColor: '#ffffff',
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: '#dbbfa5ff',
+  /* Details Card */
+  detailsCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
     padding: 14,
-    marginBottom: 6,
+    marginBottom: 12,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.05,
-    shadowRadius: 3,
+    shadowRadius: 4,
     elevation: 1,
+    borderWidth: 1,
+    borderColor: '#EEEAD8',
   },
-  infoRowTop: {
+
+  /* Date row */
+  dateRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
@@ -351,301 +433,341 @@ const styles = StyleSheet.create({
   },
   dateBadgeText: {
     fontFamily: 'Roboto_400Regular',
-    fontSize: 14,
-    color: '#222222',
+    fontSize: 13,
+    color: '#172033',
   },
   todayPill: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#feffe0ff',
+    backgroundColor: '#FEFFE0',
     paddingHorizontal: 9,
-    paddingVertical: 3,
+    paddingVertical: 4,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: '#a78104ff',
+    borderColor: '#F2A51A',
     gap: 5,
   },
   todayDot: {
     width: 6,
     height: 6,
     borderRadius: 3,
-    backgroundColor: '#a78104',
+    backgroundColor: '#F2A51A',
   },
   todayPillText: {
     fontFamily: 'Roboto_600SemiBold',
     fontSize: 11,
-    color: '#a78104',
+    color: '#F2A51A',
   },
+
   cardDivider: {
     height: 1,
-    backgroundColor: '#f0ece0',
-    marginVertical: 12,
+    backgroundColor: '#F0ECE0',
+    marginVertical: 10,
   },
-  classDetailsRow: {
+
+  /* Class row */
+  classRow: {
     flexDirection: 'row',
-    gap: 10,
+    alignItems: 'center',
   },
-  detailBox: {
+  classBox: {
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    backgroundColor: '#f3f8fc',
-    padding: 9,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#969387ff',
   },
-  detailIconCircle: {
+  classBoxSep: {
+    width: 1,
+    height: 32,
+    backgroundColor: '#F0ECE0',
+    marginHorizontal: 12,
+  },
+  classIconBox: {
     width: 32,
     height: 32,
-    borderRadius: 6,
-    backgroundColor: '#ffffff',
-    justifyContent: 'center',
+    borderRadius: 8,
+    backgroundColor: '#FFF3E0',
     alignItems: 'center',
-    borderWidth: 1,
-    borderColor: '#dcd8c8',
+    justifyContent: 'center',
   },
-  detailLabel: {
-    fontSize: 10,
+  classLabel: {
     fontFamily: 'Roboto_400Regular',
-    color: '#666666',
+    fontSize: 10,
+    color: '#687080',
     textTransform: 'uppercase',
+    letterSpacing: 0.4,
   },
-  detailValue: {
-    fontSize: 12,
+  classValue: {
     fontFamily: 'Roboto_700Bold',
-    fontWeight: '600',
-    color: '#100707ff',
+    fontSize: 13,
+    color: '#172033',
     marginTop: 1,
   },
 
-  /* Stats Ribbon */
-  statsStrip: {
+  /* Stats */
+  statsRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-around',
-    backgroundColor: '#feffe0ff',
-    borderRadius: 8,
-    marginTop: 12,
-    paddingVertical: 8,
-    borderWidth: 1,
-    borderColor: '#895f05de',
   },
-  statCol: {
-    alignItems: 'center',
+  statItem: {
     flex: 1,
+    alignItems: 'center',
   },
-  statCount: {
-    fontSize: 18,
+  statNumber: {
     fontFamily: 'Roboto_700Bold',
-    fontWeight: '700',
-    color: '#8b4a0dff',
+    fontSize: 22,
+    color: '#172033',
   },
-  statTitle: {
-    fontSize: 11,
+  statLabel: {
     fontFamily: 'Roboto_400Regular',
-    color: '#666666',
+    fontSize: 11,
+    color: '#687080',
     marginTop: 1,
   },
   statSep: {
     width: 1,
-    height: 22,
-    backgroundColor: '#dcd8c8',
+    height: 28,
+    backgroundColor: '#E5E0D0',
+  },
+  presentColor: {
+    color: '#2E8B3C',
+  },
+  absentColor: {
+    color: '#E53935',
   },
 
-  /* Quick Actions */
-  quickActionRow: {
+  /* Bulk actions */
+  bulkRow: {
     flexDirection: 'row',
     gap: 10,
-    marginBottom: 6,
-    marginTop: 18,
+    marginBottom: 16,
   },
-  quickActionBtn: {
+  bulkBtn: {
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     gap: 6,
     paddingVertical: 10,
-    borderRadius: 8,
-    backgroundColor: '#ffffff',
-    borderWidth: 1,
-    borderColor: '#969387ff',
-  },
-  markAllPresentBtn: {
-    borderColor: '#2e7d32',
-    backgroundColor: '#f1f8e9',
-  },
-  markAllAbsentBtn: {
-    borderColor: '#c62828',
-    backgroundColor: '#ffebee',
-  },
-  quickActionBtnActive: {
+    borderRadius: 10,
     borderWidth: 1.5,
   },
-  markAllPresentText: {
-    fontSize: 12,
-    fontFamily: 'Roboto_600SemiBold',
-    fontWeight: '600',
-    color: '#2e7d32',
+  bulkPresentBtn: {
+    borderColor: '#2E8B3C',
+    backgroundColor: '#F1F8E9',
   },
-  markAllAbsentText: {
-    fontSize: 12,
+  bulkAbsentBtn: {
+    borderColor: '#E53935',
+    backgroundColor: '#FFEBEE',
+  },
+  bulkBtnActive: {
+    borderWidth: 2,
+  },
+  bulkPresentText: {
     fontFamily: 'Roboto_600SemiBold',
-    fontWeight: '600',
-    color: '#c62828',
+    fontSize: 12,
+    color: '#2E8B3C',
+  },
+  bulkAbsentText: {
+    fontFamily: 'Roboto_600SemiBold',
+    fontSize: 12,
+    color: '#E53935',
   },
 
-  /* Students Header */
-  studentsHeaderContainer: {
+  /* Students header */
+  studentsHeader: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginTop: 14,
-    marginBottom: 10,
-  },
-  tapTipText: {
-    fontSize: 11,
-    fontFamily: 'Roboto_300Light',
-    color: '#777777',
-  },
-
-  /* Student Card */
-  studentCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    backgroundColor: '#ffffff',
-    borderRadius: 8,
-    padding: 10,
     marginBottom: 8,
+  },
+  studentsTitle: {
+    fontFamily: 'Roboto_700Bold',
+    fontSize: 15,
+    color: '#172033',
+  },
+  searchIconBtn: {
+    width: 32,
+    height: 32,
+    borderRadius: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
     borderWidth: 1,
-    borderColor: '#969387ff',
+    borderColor: '#DDD8C8',
+    backgroundColor: '#FFFFFF',
   },
-  studentCardPresent: {
-    borderLeftWidth: 4,
-    borderLeftColor: '#2e7d32',
+  searchIconBtnActive: {
+    borderColor: '#F2A51A',
+    backgroundColor: '#FFF9EE',
   },
-  studentCardAbsent: {
-    borderLeftWidth: 4,
-    borderLeftColor: '#c62828',
-  },
-  studentInfoContainer: {
+
+  /* Search bar */
+  searchBar: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 10,
-    flex: 1,
-  },
-  avatarCircle: {
-    width: 38,
-    height: 38,
-    borderRadius: 19,
-    backgroundColor: '#feffe0ff',
+    backgroundColor: '#FFFFFF',
+    borderRadius: 10,
     borderWidth: 1,
-    borderColor: '#895f05de',
-    justifyContent: 'center',
+    borderColor: '#F2A51A',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    marginBottom: 8,
+    gap: 8,
+  },
+  searchIcon: {},
+  searchInput: {
+    flex: 1,
+    fontFamily: 'Roboto_400Regular',
+    fontSize: 14,
+    color: '#172033',
+    paddingVertical: 0,
+  },
+
+  /* Column hint */
+  columnHint: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    backgroundColor: '#F5F3EB',
+    borderRadius: 8,
+    marginBottom: 4,
+  },
+  columnHintLeft: {
+    fontFamily: 'Roboto_600SemiBold',
+    fontSize: 11,
+    color: '#687080',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+  },
+  columnHintRight: {
+    fontFamily: 'Roboto_400Regular',
+    fontSize: 11,
+    color: '#A0A8B0',
+  },
+
+  /* Student Row */
+  studentRow: {
+    flexDirection: 'row',
     alignItems: 'center',
+    backgroundColor: '#FFFFFF',
+    paddingVertical: 10,
+    paddingRight: 12,
+    overflow: 'hidden',
+  },
+  studentRowBorder: {
+    borderTopWidth: 1,
+    borderTopColor: '#F0ECE0',
+  },
+
+  /* Left accent bar (4px colored strip) */
+  statusAccent: {
+    width: 4,
+    alignSelf: 'stretch',
+    marginRight: 10,
+    borderRadius: 2,
+    minHeight: 44,
+  },
+
+  /* Avatar */
+  avatar: {
+    width: 34,
+    height: 34,
+    borderRadius: 17,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 10,
   },
   avatarText: {
-    fontSize: 13,
-    fontFamily: 'Roboto_600SemiBold',
-    fontWeight: '600',
-    color: '#8b4a0dff',
-  },
-  nameSection: {
-    flex: 1,
-  },
-  studentName: {
-    fontSize: 14,
-    fontFamily: 'Roboto_600SemiBold',
-    fontWeight: '600',
-    color: '#100707ff',
-  },
-  rollBadge: {
-    alignSelf: 'flex-start',
-    backgroundColor: '#f3f8fc',
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-    borderRadius: 4,
-    borderWidth: 1,
-    borderColor: '#dcd8c8',
-    marginTop: 3,
-  },
-  rollText: {
-    fontSize: 10,
-    fontFamily: 'Roboto_400Regular',
-    color: '#555555',
+    fontFamily: 'Roboto_700Bold',
+    fontSize: 12,
   },
 
-  /* Individual Toggle Button */
-  statusToggleButton: {
+  /* Student info */
+  studentInfo: {
+    flex: 1,
+    marginRight: 8,
+  },
+  studentName: {
+    fontFamily: 'Roboto_600SemiBold',
+    fontSize: 13,
+    color: '#172033',
+  },
+  rollNo: {
+    fontFamily: 'Roboto_400Regular',
+    fontSize: 11,
+    color: '#687080',
+    marginTop: 1,
+  },
+
+  /* Status pill */
+  statusPill: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 5,
-    paddingHorizontal: 12,
+    gap: 4,
+    paddingHorizontal: 11,
     paddingVertical: 6,
     borderRadius: 16,
   },
-  presentButton: {
-    backgroundColor: '#2e7d32',
+  presentPill: {
+    backgroundColor: '#2E8B3C',
   },
-  absentButton: {
-    backgroundColor: '#c62828',
+  absentPill: {
+    backgroundColor: '#E53935',
   },
-  statusButtonText: {
+  pillText: {
     color: '#FFFFFF',
-    fontSize: 12,
     fontFamily: 'Roboto_600SemiBold',
-    fontWeight: '600',
+    fontSize: 12,
   },
 
-  /* Bottom Submit Bar */
+  /* Bottom Bar */
   bottomBar: {
     position: 'absolute',
     bottom: 0,
     left: 0,
     right: 0,
-    backgroundColor: '#ffffff',
+    backgroundColor: '#FFFFFF',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 16,
     paddingTop: 10,
     borderTopWidth: 1,
-    borderTopColor: '#dcd8c8',
+    borderTopColor: '#EDECDF',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: -2 },
     shadowOpacity: 0.05,
-    shadowRadius: 4,
-    elevation: 4,
+    shadowRadius: 6,
+    elevation: 5,
   },
   bottomSummary: {
     flex: 1,
+    marginRight: 12,
   },
   bottomSummaryLabel: {
-    fontSize: 10,
     fontFamily: 'Roboto_400Regular',
-    color: '#777777',
-    letterSpacing: 0.5,
+    fontSize: 10,
+    color: '#687080',
+    letterSpacing: 0.8,
+    textTransform: 'uppercase',
   },
   bottomSummaryValue: {
-    fontSize: 13,
     fontFamily: 'Roboto_600SemiBold',
-    fontWeight: '600',
-    color: '#100707ff',
+    fontSize: 12,
+    color: '#172033',
     marginTop: 1,
   },
   submitButton: {
-    backgroundColor: '#0b2178ff',
-    paddingVertical: 10,
-    paddingHorizontal: 22,
-    borderRadius: 8,
+    backgroundColor: '#172033',
+    paddingVertical: 11,
+    paddingHorizontal: 24,
+    borderRadius: 10,
   },
   submitButtonText: {
     color: '#FFFFFF',
-    fontSize: 13,
     fontFamily: 'Roboto_600SemiBold',
-    fontWeight: '600',
+    fontSize: 13,
   },
 });

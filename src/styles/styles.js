@@ -3,202 +3,269 @@ import { StyleSheet } from 'react-native';
 export const DashboardStyles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#ffffffff',
+    backgroundColor: '#F8FAFC',
   },
-
   scrollContent: {
     paddingBottom: 7,
   },
-
-  // Header
-
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
   },
-
   profileSection: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 5,
+    gap: 12,
   },
-
   avatar: {
-    width: 40,
-    height: 40,
-    borderRadius: 31,
-    backgroundColor: '#feffe0ff',
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: '#FFF9E6',
     borderWidth: 1,
-    borderColor: '#895f05de',
+    borderColor: '#F2A51A',
     justifyContent: 'center',
     alignItems: 'center',
   },
-
   avatarText: {
-    fontSize: 18,
+    fontSize: 22,
   },
-
-  name: {
-    fontFamily: 'Roboto_700Bold',
-    fontSize: 17,
-    fontWeight: '500',
-    color: '#100707ff',
-  },
-
   greeting: {
-    fontFamily: 'Roboto_400Regular',
     fontSize: 13,
-    color: '#141313ff',
-    marginTop: 1,
+    color: '#687080',
+    marginBottom: 2,
   },
-
-  NotificatioButton: {
-    width: 30,
-    height: 30,
-    borderRadius: 20,
-    backgroundColor: '#feffe0ff',
-    borderWidth: 1,
-    borderColor: '#121210de',
+  name: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#172033',
+    marginBottom: 2,
+  },
+  classSection: {
+    fontSize: 12,
+    color: '#687080',
+  },
+  headerActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  iconButton: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: '#FFFFFF',
     justifyContent: 'center',
     alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 2,
   },
-
-  //Component header
-  componentHeader: {
-    paddingLeft: '4%',
-    marginBottom: '4%',
-    marginTop: '5%',
+  notificationDot: {
+    position: 'absolute',
+    top: 8,
+    right: 8,
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: '#e53935',
   },
-  componentText: {
-    fontFamily: ' Roboto_300Light,',
+  paginationContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: 6,
+    marginBottom: 24,
+  },
+  paginationDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: '#D1D5DB',
+  },
+  paginationDotActive: {
+    width: 12,
+    backgroundColor: '#F2A51A',
+  },
+  sectionHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-end',
+    paddingHorizontal: 20,
+    marginBottom: 12,
+    marginTop: 8,
+  },
+  sectionTitle: {
     fontSize: 18,
+    fontWeight: '700',
+    color: '#172033',
   },
-  headerLine: {
-    borderWidth: 1,
-    maxWidth: '8%',
-    marginTop: 2,
-    marginBottom: 4,
-    borderColor: '#0b2178ff',
-    backgroundColor: '#0b2178ff',
+  sectionHeaderRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
   },
-
-  //Alert container
-  alertContainer: {
+  sectionSubtitle: {
+    fontSize: 13,
+    color: '#687080',
+  },
+  seeAllButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    backgroundColor: '#FFF9E6',
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 12,
+  },
+  seeAllText: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#F2A51A',
+  },
+  timetableContainer: {
+    paddingHorizontal: 20,
+    marginBottom: 24,
     gap: 10,
   },
-
-  //Timetable
-
-  timeTableDate: {
-    fontFamily: 'Roboto_300Light',
-    color: '#222',
-    fontSize: 14,
-    marginTop: 5,
-    marginBottom: 5,
-  },
-  periodGrid: {
-    width: '100%',
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-    rowGap: 8,
-    paddingHorizontal: '3%',
-    marginBottom: '2%',
-  },
-
-  periodCard: {
-    width: '30%',
-    height: 40,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#8b4a0dff',
-    backgroundColor: '#ffffff',
+  timetableCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: '2%',
+    backgroundColor: '#FFFFFF',
+    padding: 12,
+    borderRadius: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.03,
+    shadowRadius: 8,
+    elevation: 1,
+    borderWidth: 1,
+    borderColor: '#F1F5F9',
   },
-
+  periodNumberContainer: {
+    width: 36,
+    height: 36,
+    borderRadius: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   periodNumber: {
-    width: '30%',
-    fontSize: 27,
-    fontFamily: 'Roboto_400Regular',
-    color: '#8b4a0dff',
-    textAlign: 'center',
+    fontSize: 16,
+    fontWeight: '700',
   },
-
-  subject: {
-    flex: 1,
-    marginLeft: '4%',
+  timetableTimeContainer: {
+    width: 90,
+    paddingHorizontal: 12,
+  },
+  timetableTime: {
     fontSize: 12,
-    fontFamily: 'Roboto_400Regular',
-    color: '#555555',
+    color: '#687080',
+    fontWeight: '500',
   },
-
-  emptyPeriod: {
-    opacity: 0,
+  timetableIconContainer: {
+    width: 36,
+    height: 36,
+    borderRadius: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,
   },
-
-  // Quick Actions
-
+  timetableInfo: {
+    flex: 1,
+  },
+  timetableSubject: {
+    fontSize: 15,
+    fontWeight: '600',
+    color: '#172033',
+    marginBottom: 2,
+  },
+  timetableTeacher: {
+    fontSize: 12,
+    color: '#687080',
+  },
   quickActionContainer: {
-    width: '100%',
     flexDirection: 'row',
     flexWrap: 'wrap',
-    justifyContent: 'space-between',
-    paddingHorizontal: 5,
+    paddingHorizontal: 16,
+    marginBottom: 16,
   },
-
-  category: {
-    flexDirection: 'column',
+  quickActionItem: {
     width: '25%',
     alignItems: 'center',
-    marginBottom: 20,
-    paddingHorizontal: 3,
+    marginBottom: 16,
+    paddingHorizontal: 4,
   },
-
-  categoryIcon: {
-    width: 65,
-    height: 55,
-    borderRadius: 8,
-    backgroundColor: '#f3f8fc',
-    alignItems: 'center',
+  quickActionIcon: {
+    width: 56,
+    height: 56,
+    borderRadius: 16,
     justifyContent: 'center',
-    marginBottom: 6,
-    borderWidth: 1,
-    borderColor: '#969387ff',
+    alignItems: 'center',
+    marginBottom: 8,
   },
-
-  categoryText: {
-    textAlign: 'center',
+  quickActionText: {
     fontSize: 12,
-    color: '#222',
-    fontFamily: 'Roboto_400Regular',
-  },
-
-  viewAllButton: {
-    marginVertical: 10,
-    flexDirection: 'row',
-    gap: 10,
-    borderWidth: 1,
-    borderColor: '#a78104ff',
-    width: '30%',
-    borderRadius: 10,
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    alignSelf: 'center', // Centers the button horizontally in its parent
-    alignItems: 'center', // Centers child elements (Text) horizontally
-    justifyContent: 'center', // Centers child elements (Text) vertically
-  },
-  viewAllText: {
-    fontFamily: 'Roboto_600SemiBold',
+    color: '#172033',
     textAlign: 'center',
-    color: '#a78104', // adjust color as needed
+    fontWeight: '500',
   },
-  section: {
-    paddingVertical: 8,
+  upcomingGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    paddingHorizontal: 16,
+    justifyContent: 'space-between',
+  },
+  upcomingCard: {
+    width: '48%',
+    backgroundColor: '#FFFFFF',
+    padding: 14,
+    borderRadius: 16,
+    marginBottom: 12,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.03,
+    shadowRadius: 8,
+    elevation: 1,
+    borderWidth: 1,
+    borderColor: '#F1F5F9',
+  },
+  upcomingIconContainer: {
+    width: 40,
+    height: 40,
+    borderRadius: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  upcomingInfo: {
+    flex: 1,
+    marginBottom: 8,
+  },
+  upcomingTitle: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#172033',
+    marginBottom: 4,
+  },
+  upcomingSubtitle: {
+    fontSize: 12,
+    color: '#687080',
+    marginBottom: 6,
+  },
+  upcomingTime: {
+    fontSize: 12,
+    fontWeight: '500',
+    color: '#2196f3',
+  },
+  pressedCard: {
+    opacity: 0.7,
+    transform: [{ scale: 0.98 }],
   },
 });
+
 
 export const AlertCardStyle = StyleSheet.create({
   card: {

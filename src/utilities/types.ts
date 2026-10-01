@@ -1,7 +1,7 @@
 import { Href } from 'expo-router';
 
 export interface Tiles {
-  category: 'Academics' | 'students' | 'Examination' | 'Timetable' | 'Administration' | 'Miscellaneous';
+  category: 'Academics' | 'students' | 'Examination' | 'Timetable' | 'Administration' | 'AI Assistant';
   title: string;
   icon: string;
   badge: string;

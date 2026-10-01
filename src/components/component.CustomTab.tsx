@@ -92,26 +92,21 @@ export default function CustomTab({ state, descriptors, navigation }: BottomTabB
               onLongPress={onLongPress}
               style={({ pressed }) => [styles.tab, pressed && styles.pressed]}
             >
-              {Icon && (
-                <Icon
-                  size={22}
-                  strokeWidth={isFocused ? 2.2 : 1.6}
-                  color={isFocused ? '#FFFFFF' : '#8C8C96'}
-                  fill={isFocused ? '#FFFFFF' : 'transparent'}
-                />
-              )}
-
-              <Text
-                style={[
-                  styles.label,
-                  {
-                    color: isFocused ? '#FFFFFF' : '#8C8C96',
-                  },
-                ]}
-                numberOfLines={1}
-              >
-                {typeof label === 'string' ? label : route.name}
-              </Text>
+              <View style={[styles.tabInner, isFocused && styles.tabInnerFocused]}>
+                {Icon && (
+                  <Icon
+                    size={20}
+                    strokeWidth={isFocused ? 2.2 : 1.6}
+                    color={isFocused ? '#F2A51A' : '#8C8C96'}
+                  />
+                )}
+                <Text
+                  style={[styles.label, { color: isFocused ? '#F2A51A' : '#8C8C96' }]}
+                  numberOfLines={1}
+                >
+                  {typeof label === 'string' ? label : route.name}
+                </Text>
+              </View>
             </Pressable>
           );
         })}
@@ -135,28 +130,18 @@ const styles = StyleSheet.create({
   tabBar: {
     width: '100%',
     maxWidth: 700,
-
-    height: 72,
-
-    backgroundColor: '#111111',
-
-    borderRadius: 15,
-
+    height: 60,
+    backgroundColor: '#141414',
+    borderRadius: 26,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-around',
-
-    paddingHorizontal: 12,
-
+    paddingHorizontal: 8,
     // iOS shadow
     shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 10,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 20,
-
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.22,
+    shadowRadius: 18,
     // Android shadow
     elevation: 12,
   },
@@ -164,16 +149,23 @@ const styles = StyleSheet.create({
   tab: {
     flex: 1,
     height: '100%',
-
     alignItems: 'center',
     justifyContent: 'center',
-
-    gap: 7,
   },
-
+  tabInner: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 4,
+    paddingHorizontal: 14,
+    paddingVertical: 7,
+    borderRadius: 18,
+  },
+  tabInnerFocused: {
+    backgroundColor: 'rgba(242, 165, 26, 0.14)',
+  },
   label: {
-    fontSize: 9,
-    fontWeight: '500',
+    fontSize: 10,
+    fontWeight: '600',
   },
 
   pressed: {

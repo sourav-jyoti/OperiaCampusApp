@@ -1,36 +1,88 @@
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
-import { ArrowRight, Bell, Box } from 'lucide-react-native';
-import { Pressable, ScrollView, Text, View } from 'react-native';
+import {
+  ArrowRight,
+  Bell,
+  Search,
+  CalendarOff,
+  ClipboardCheck,
+  CalendarDays,
+  Users,
+  FileText,
+  BookOpen,
+  BookMarked,
+  UserRound,
+  Calculator,
+  FlaskConical,
+  BookA,
+  Globe2,
+  ChevronRight,
+} from 'lucide-react-native';
+import { Pressable, ScrollView, Text, View, useWindowDimensions } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useState } from 'react';
 
-import UpcomingEventsCard from '@/components/component.UpcomingEventCard';
 import { useTabBarScroll } from '@/hooks/useTabBarScroll';
-
-import { useScreenSize } from '../../../hooks/responsiveSize';
 import { DashboardStyles } from '../../../styles/styles';
-
 import BannerCard from '@/components/component.AlertCard';
-import { bannerNotice, tilesData, timetableData } from '../../../utilities/mockdata';
+import { bannerNotice } from '../../../utilities/mockdata';
 
 const styles = DashboardStyles;
 
-const profile: { name: string; uuid: string; role: string; permision: string[] } = {
-  name: 'sourav',
-  uuid: '123',
-  role: 'teacher',
-  permision: ['create', 'read', 'update', 'delete'],
+// ─── Static data (VI-B context) ─────────────────────────────────────────────
+
+const profile = {
+  name: 'Sourav',
+  class: 'Class VI',
+  section: 'Section B',
 };
 
+const quickActions = [
+  { title: 'Leave',           icon: CalendarOff,   color: '#E8F5E9', iconColor: '#388E3C', path: '/(Tiles)/LeaveRequest' },
+  { title: 'Duties',          icon: ClipboardCheck, color: '#FFF3E0', iconColor: '#E65100', path: '' },
+  { title: 'Events',          icon: CalendarDays,   color: '#FCE4EC', iconColor: '#C2185B', path: '' },
+  { title: 'Meetings',        icon: Users,          color: '#F3E5F5', iconColor: '#7B1FA2', path: '' },
+  { title: 'Assignments',     icon: FileText,       color: '#E3F2FD', iconColor: '#1565C0', path: '/(Tiles)/Assignments' },
+  { title: 'Subjects',        icon: BookOpen,       color: '#FFF8E1', iconColor: '#F9A825', path: '' },
+  { title: 'Study Material',  icon: BookMarked,     color: '#E0F2F1', iconColor: '#00695C', path: '' },
+  { title: 'Student Profile', icon: UserRound,      color: '#E8EAF6', iconColor: '#283593', path: '' },
+] as const;
+
+const timetableMock = [
+  { period: '1', time: '09:00 – 09:45', subject: 'Mathematics',    teacher: 'Mr. Sharma', room: 'Room 204', SubjectIcon: Calculator,  color: '#FFF3E0', iconColor: '#E65100' },
+  { period: '2', time: '09:45 – 10:30', subject: 'Science',        teacher: 'Mrs. Gupta', room: 'Lab 2',    SubjectIcon: FlaskConical, color: '#E8F5E9', iconColor: '#388E3C' },
+  { period: '3', time: '10:45 – 11:30', subject: 'English',        teacher: 'Ms. Verma',  room: 'Room 105', SubjectIcon: BookA,        color: '#E3F2FD', iconColor: '#1565C0' },
+  { period: '4', time: '11:30 – 12:15', subject: 'Social Science', teacher: 'Mr. Khan',   room: 'Room 203', SubjectIcon: Globe2,       color: '#F3E5F5', iconColor: '#7B1FA2' },
+];
+
+const upcomingMock = [
+  { title: 'Science Assignment', subtitle: 'Chapter 4 – Living Organisms', time: 'Due tomorrow',     type: 'urgent',   ItemIcon: FileText,    color: '#FCE4EC', iconColor: '#C2185B' },
+  { title: 'Mathematics Test',   subtitle: 'Unit 2',                        time: '14 June • 10 AM', type: 'upcoming', ItemIcon: CalendarDays, color: '#E3F2FD', iconColor: '#1565C0' },
+  { title: 'School Announcement',subtitle: 'Annual Day Practice',           time: '',                type: 'info',     ItemIcon: Bell,        color: '#E8F5E9', iconColor: '#388E3C' },
+  { title: 'Inter-House Sports', subtitle: 'Starts 18 June',               time: '',                type: 'event',    ItemIcon: Users,       color: '#F3E5F5', iconColor: '#7B1FA2' },
+];
+
+// ─── Component ───────────────────────────────────────────────────────────────
+
 export default function Dashboard() {
-  const insets = useSafeAreaInsets();
-  const { width, height } = useScreenSize();
+  const insets  = useSafeAreaInsets();
+  const { width } = useWindowDimensions();
   const { onScroll, scrollEventThrottle } = useTabBarScroll();
-  const router = useRouter();
-  const CARD_WIDTH = Math.round(width * 0.88);
-  const CARD_GAP = 10;
-  const CARD_SPACING = (width - CARD_WIDTH) / 2;
-  const snapOffsets = bannerNotice.map((_, index) => index * (CARD_WIDTH + CARD_GAP));
+  const router  = useRouter();
+
+  // Carousel layout
+  const CARD_WIDTH   = Math.round(width * 0.85);
+  const CARD_GAP     = 12;
+  const CARD_SPACING = Math.round((width - CARD_WIDTH) / 2);
+  const snapOffsets  = bannerNotice.map((_, i) => i * (CARD_WIDTH + CARD_GAP));
+
+  const [activeSlide, setActiveSlide] = useState(0);
+
+  const onCarouselScroll = (event: any) => {
+    const x     = event.nativeEvent.contentOffset.x;
+    const index = Math.round(x / (CARD_WIDTH + CARD_GAP));
+    setActiveSlide(Math.max(0, Math.min(index, bannerNotice.length - 1)));
+  };
 
   return (
     <View style={styles.container}>
@@ -40,152 +92,243 @@ export default function Dashboard() {
         onScroll={onScroll}
         scrollEventThrottle={scrollEventThrottle}
       >
-        <LinearGradient colors={['#f4d65b', '#f5e193', '#ffffffff']} locations={[0.22, 0.5, 1.0]} start={{ x: 0.5, y: 0 }} end={{ x: 0.5, y: 1 }}>
-          {/**Header */}
-          <View style={[styles.header, { paddingTop: insets.top + 15, paddingLeft: insets.left + 17, paddingRight: insets.right + 17 }]}>
-            <Pressable style={styles.profileSection}>
-              <View style={styles.avatar}>
-                <Text style={styles.avatarText}>👨🏻</Text>
-              </View>
-
-              <View>
-                <Text style={styles.name}>Hi , {profile.name}</Text>
-                <Text style={styles.greeting}>VI B</Text>
-              </View>
-            </Pressable>
-
-            <Pressable style={styles.NotificatioButton} onPress={() => router.push('/(Tiles)/Notifications')}>
-              <Bell size={16} color="#222" />
-            </Pressable>
-          </View>
-        </LinearGradient>
-        <View
-          style={{
-            paddingLeft: insets.left + 3,
-            paddingRight: insets.right + 3,
-            paddingBottom: insets.bottom - 40,
-          }}
+        {/* ── HEADER ── */}
+        <LinearGradient
+          colors={['#FFF5CC', '#FFFBEE', '#F8FAFC']}
+          locations={[0, 0.5, 1]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 0, y: 1 }}
         >
-          {/**Alert */}
-          <View style={styles.componentHeader}>
-            <Text style={styles.componentText}>Alerts</Text>
-            <View style={styles.headerLine}></View>
-          </View>
-
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            nestedScrollEnabled={true}
-            decelerationRate="fast"
-            snapToInterval={CARD_WIDTH + CARD_GAP}
-            snapToOffsets={snapOffsets}
-            disableIntervalMomentum={true}
-            style={{
-              marginLeft: -(insets.left + 7),
-              marginRight: -(insets.right + 3),
-            }}
-            contentContainerStyle={[
-              styles.alertContainer,
-              {
-                paddingHorizontal: CARD_SPACING,
-                gap: CARD_GAP,
-              },
+          <View
+            style={[
+              styles.header,
+              { paddingTop: insets.top + 16, paddingHorizontal: 20, paddingBottom: 20 },
             ]}
           >
-            {bannerNotice.map((item, index) => (
-              <BannerCard
-                key={`${item.title}-${index}`}
-                item={item}
-                cardWidth={CARD_WIDTH}
-                onPress={(item) => {
-                  console.log('Pressed:', item.pathname);
-
-                  // navigation.navigate(item.path)
-                }}
-              />
-            ))}
-          </ScrollView>
-
-          {/**TimeTable */}
-          <View style={styles.componentHeader}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5 }}>
-              <Text style={styles.componentText}>Time Table</Text>
-              <Text style={styles.timeTableDate}>{timetableData[0].date}</Text>
+            <View style={styles.profileSection}>
+              <View style={styles.avatar}>
+                <Text style={styles.avatarText}>👦🏻</Text>
+              </View>
+              <View>
+                <Text style={styles.greeting}>Good morning,</Text>
+                <Text style={styles.name}>{profile.name} 👋</Text>
+                <Text style={styles.classSection}>
+                  {profile.class} • {profile.section}
+                </Text>
+              </View>
             </View>
-            <View style={styles.headerLine}></View>
+
+            <View style={styles.headerActions}>
+              <Pressable
+                style={styles.iconButton}
+                accessibilityLabel="Search"
+                accessibilityRole="button"
+              >
+                <Search size={19} color="#172033" strokeWidth={2} />
+              </Pressable>
+              <Pressable
+                style={styles.iconButton}
+                onPress={() => router.push('/(Tiles)/Notifications')}
+                accessibilityLabel="Notifications"
+                accessibilityRole="button"
+              >
+                <Bell size={19} color="#172033" strokeWidth={2} />
+                <View style={styles.notificationDot} />
+              </Pressable>
+            </View>
+          </View>
+        </LinearGradient>
+
+        {/* ── BODY ── */}
+        <View>
+
+          {/* ── ALERT CAROUSEL ── */}
+          <View style={{ marginTop: 20 }}>
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              nestedScrollEnabled
+              decelerationRate="fast"
+              snapToInterval={CARD_WIDTH + CARD_GAP}
+              snapToOffsets={snapOffsets}
+              disableIntervalMomentum
+              scrollEventThrottle={16}
+              onScroll={onCarouselScroll}
+              contentContainerStyle={{
+                paddingHorizontal: CARD_SPACING,
+                gap: CARD_GAP,
+                paddingBottom: 8,
+              }}
+            >
+              {bannerNotice.map((item, index) => (
+                <BannerCard
+                  key={`banner-${index}`}
+                  item={item}
+                  cardWidth={CARD_WIDTH}
+                />
+              ))}
+            </ScrollView>
+
+            {/* Pagination dots */}
+            <View style={styles.paginationContainer}>
+              {bannerNotice.map((_, index) => (
+                <View
+                  key={index}
+                  style={[
+                    styles.paginationDot,
+                    activeSlide === index && styles.paginationDotActive,
+                  ]}
+                />
+              ))}
+            </View>
           </View>
 
-          <View style={styles.periodGrid}>
-            {timetableData[0].schedule.map((item) => (
-              <View key={item.Period} style={styles.periodCard}>
-                <Text style={styles.periodNumber}>{item.Period}</Text>
+          {/* ── TODAY'S CLASSES ── */}
+          <View style={[styles.sectionHeader, { marginTop: 8 }]}>
+            <Text style={styles.sectionTitle}>Today's Classes</Text>
+            <View style={styles.sectionHeaderRight}>
+              <Text style={styles.sectionSubtitle}>Thu, 11 Jun</Text>
+              <Pressable
+                style={styles.seeAllButton}
+                accessibilityLabel="See all classes"
+                accessibilityRole="button"
+              >
+                <Text style={styles.seeAllText}>See all</Text>
+                <ArrowRight size={13} color="#F2A51A" strokeWidth={2.5} />
+              </Pressable>
+            </View>
+          </View>
 
-                <View style={{ flex: 1, flexDirection: 'column', paddingVertical: 4, paddingLeft: 4 }}>
-                  <Text numberOfLines={1} ellipsizeMode="tail" style={styles.subject}>
+          <View style={styles.timetableContainer}>
+            {timetableMock.map((item) => (
+              <Pressable
+                key={item.period}
+                style={({ pressed }) => [
+                  styles.timetableCard,
+                  pressed && styles.pressedCard,
+                ]}
+                accessibilityLabel={`Period ${item.period}: ${item.subject} with ${item.teacher} in ${item.room}`}
+                accessibilityRole="button"
+              >
+                {/* Period number badge */}
+                <View style={[styles.periodNumberContainer, { backgroundColor: item.color }]}>
+                  <Text style={[styles.periodNumber, { color: item.iconColor }]}>
+                    {item.period}
+                  </Text>
+                </View>
+
+                {/* Time */}
+                <View style={styles.timetableTimeContainer}>
+                  <Text style={styles.timetableTime}>{item.time}</Text>
+                </View>
+
+                {/* Subject icon */}
+                <View style={[styles.timetableIconContainer, { backgroundColor: item.color }]}>
+                  <item.SubjectIcon size={18} color={item.iconColor} strokeWidth={2} />
+                </View>
+
+                {/* Subject + teacher/room */}
+                <View style={styles.timetableInfo}>
+                  <Text style={styles.timetableSubject} numberOfLines={1}>
                     {item.subject}
                   </Text>
-                  <Text numberOfLines={1} ellipsizeMode="tail" style={styles.subject}>
-                    {item.class}
+                  <Text style={styles.timetableTeacher} numberOfLines={1}>
+                    {item.teacher} · {item.room}
                   </Text>
                 </View>
-              </View>
-            ))}
 
-            {/*  Empty slots to maintain 3 × 2  */}
-            {Array.from({
-              length: 6 - timetableData[0].schedule.length,
-            }).map((_, index) => (
-              <View key={`empty-${index}`} style={[styles.periodCard, styles.emptyPeriod]} />
-            ))}
-          </View>
-
-          {/**Quick Actions */}
-          <View style={styles.componentHeader}>
-            <Text style={styles.componentText}>Quick Actions</Text>
-            <View style={styles.headerLine}></View>
-          </View>
-          <View style={styles.quickActionContainer}>
-            {tilesData.slice(0, 8).map((item, index) => (
-              <Pressable
-                key={index}
-                onPress={() => {
-                  if (item.path) {
-                    router.push(item.path);
-                  }
-                }}
-                style={({ pressed }) => [styles.category, pressed && { opacity: 0.9, transform: [{ scale: 0.98 }] }]}
-              >
-                <View style={styles.categoryIcon}>
-                  <Box color="#f08a27" size={24} />
-                </View>
-                <Text style={styles.categoryText}>{item.title}</Text>
+                <ChevronRight size={16} color="#C0C8D4" strokeWidth={2.5} />
               </Pressable>
             ))}
           </View>
 
-          <Pressable onPress={() => router.navigate('/(app)/(tabs)/tabs.More')} style={({ pressed }) => [styles.viewAllButton, pressed && { opacity: 0.8 }]}>
-            <Text style={styles.viewAllText}>View All</Text>
-            <ArrowRight color="#a78104ff" size={20} />
-          </Pressable>
-
-          {/**Upcoming Events */}
-          <View style={styles.componentHeader}>
-            <Text style={styles.componentText}>Upcoming Events</Text>
-            <View style={styles.headerLine}></View>
+          {/* ── QUICK ACTIONS ── */}
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>Quick Actions</Text>
+            <Pressable
+              style={styles.seeAllButton}
+              onPress={() => router.navigate('/(app)/(tabs)/tabs.More')}
+              accessibilityLabel="View all actions"
+              accessibilityRole="button"
+            >
+              <Text style={styles.seeAllText}>View all</Text>
+              <ArrowRight size={13} color="#F2A51A" strokeWidth={2.5} />
+            </Pressable>
           </View>
-          <View style={styles.section}>
-            {/* Assignment Card - shows Pending/Submitted */}
-            <UpcomingEventsCard title="Assignments" pending={5} submitted={2} onViewAll={() => console.log('View all assignments')} />
 
-            {/* Exam Card - shows Total/Due */}
-            <UpcomingEventsCard title="Exams" total={8} due={5} onViewAll={() => console.log('View all exams')} />
-
-            {/* Holiday Card - minimal */}
-
-            {/* Events Card */}
+          <View style={styles.quickActionContainer}>
+            {quickActions.map((item) => (
+              <Pressable
+                key={item.title}
+                onPress={() => (item.path ? router.push(item.path as any) : undefined)}
+                style={({ pressed }) => [
+                  styles.quickActionItem,
+                  pressed && styles.pressedCard,
+                ]}
+                accessibilityLabel={item.title}
+                accessibilityRole="button"
+              >
+                <View style={[styles.quickActionIcon, { backgroundColor: item.color }]}>
+                  <item.icon size={24} color={item.iconColor} strokeWidth={1.8} />
+                </View>
+                <Text style={styles.quickActionText} numberOfLines={2}>
+                  {item.title}
+                </Text>
+              </Pressable>
+            ))}
           </View>
+
+          {/* ── UPCOMING ── */}
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>Upcoming</Text>
+            <Pressable
+              style={styles.seeAllButton}
+              accessibilityLabel="See all upcoming"
+              accessibilityRole="button"
+            >
+              <Text style={styles.seeAllText}>See all</Text>
+              <ArrowRight size={13} color="#F2A51A" strokeWidth={2.5} />
+            </Pressable>
+          </View>
+
+          <View style={styles.upcomingGrid}>
+            {upcomingMock.map((item) => (
+              <Pressable
+                key={item.title}
+                style={({ pressed }) => [
+                  styles.upcomingCard,
+                  pressed && styles.pressedCard,
+                ]}
+                accessibilityLabel={`${item.title}: ${item.subtitle}${item.time ? `, ${item.time}` : ''}`}
+                accessibilityRole="button"
+              >
+                <View style={[styles.upcomingIconContainer, { backgroundColor: item.color }]}>
+                  <item.ItemIcon size={20} color={item.iconColor} strokeWidth={1.8} />
+                </View>
+                <Text style={styles.upcomingTitle} numberOfLines={2}>
+                  {item.title}
+                </Text>
+                <Text style={styles.upcomingSubtitle} numberOfLines={2}>
+                  {item.subtitle}
+                </Text>
+                {item.time ? (
+                  <Text
+                    style={[
+                      styles.upcomingTime,
+                      item.type === 'urgent' && { color: '#D32F2F' },
+                    ]}
+                    numberOfLines={1}
+                  >
+                    {item.time}
+                  </Text>
+                ) : null}
+              </Pressable>
+            ))}
+          </View>
+
         </View>
       </ScrollView>
     </View>
   );
 }
+

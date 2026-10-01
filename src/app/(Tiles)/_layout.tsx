@@ -25,6 +25,7 @@ export default function TilesLayout() {
       <Stack.Screen name="StudentFeedback" />
       <Stack.Screen name="Duties" />
       <Stack.Screen name="Notifications" />
+      <Stack.Screen name="AIChatBot" />
     </Stack>
   );
 }

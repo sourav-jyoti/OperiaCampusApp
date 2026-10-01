@@ -1,34 +1,31 @@
 import type { Assignment, BannerNotice, Student, Tiles, TimeTable } from './types';
 
 export const tilesData: Tiles[] = [
-  { category: 'Administration', title: 'Leave', icon: 'leaveRequest', badge: '1', path: '/(Tiles)/LeaveRequest' },
-  { category: 'Administration', title: 'Duties', icon: 'duties', badge: '1', path: '' },
-  { category: 'Administration', title: 'Events', icon: 'event', badge: '2', path: '' },
-  { category: 'Administration', title: 'Meetings', icon: 'meetings', badge: '1', path: '' },
-  { category: 'Academics', title: 'Assignments', icon: 'assignment', badge: '3', path: '/(Tiles)/Assignments' },
-  { category: 'Academics', title: 'Subjects', icon: 'subject', badge: '', path: '' },
-  { category: 'Academics', title: 'Study Material', icon: 'study', badge: '', path: '' },
-  { category: 'students', title: 'Student Profile', icon: 'profile', badge: '', path: '' },
-  { category: 'students', title: 'Attendance', icon: 'attendance', badge: '', path: '/(Tiles)/MarkAttendance' },
-  { category: 'students', title: 'Student Review', icon: 'review', badge: '', path: '' },
-  { category: 'Examination', title: 'Create Exam', icon: '', badge: '', path: '' },
-  { category: 'Examination', title: 'Upload Marks', icon: '', badge: '', path: '/(Tiles)/UploadMarks' },
-  { category: 'Examination', title: 'Results', icon: 'result', badge: '', path: '/(Tiles)/GenerateReport' },
-  { category: 'Timetable', title: 'My Timetable', icon: 'timetable', badge: '', path: '' },
-  { category: 'Timetable', title: 'Substitution', icon: 'substition', badge: '', path: '' },
-  { category: 'Timetable', title: 'Schedule Requests', icon: 'scheduleRequest', badge: '', path: '' },
-  { category: 'Miscellaneous', title: 'Library', icon: 'library', badge: '', path: '/(Tiles)/Library' },
-  { category: 'Miscellaneous', title: 'Student Feedback', icon: 'studentFeedback', badge: '3', path: '' },
+  // Administration
+  { category: 'Administration', title: 'Leave', icon: 'CalendarOff', badge: '1', path: '/(Tiles)/LeaveRequest' },
+  { category: 'Administration', title: 'Duties', icon: 'ClipboardCheck', badge: '1', path: '' },
+  { category: 'Administration', title: 'Events', icon: 'CalendarDays', badge: '2', path: '' },
+  { category: 'Administration', title: 'Meetings', icon: 'Users', badge: '1', path: '' },
+  // Academics
+  { category: 'Academics', title: 'Assignments', icon: 'FileText', badge: '3', path: '/(Tiles)/Assignments' },
+  { category: 'Academics', title: 'Subjects', icon: 'BookOpen', badge: '', path: '' },
+  { category: 'Academics', title: 'Study Material', icon: 'BookMarked', badge: '', path: '' },
+  // Students
+  { category: 'students', title: 'Student Profile', icon: 'UserRound', badge: '', path: '' },
+  { category: 'students', title: 'Attendance', icon: 'CalendarCheck', badge: '', path: '/(Tiles)/MarkAttendance' },
+  { category: 'students', title: 'Student Review', icon: 'BarChart3', badge: '', path: '' },
+  // Examination
+  { category: 'Examination', title: 'Create Exam', icon: 'FilePlus', badge: '', path: '' },
+  { category: 'Examination', title: 'Upload Marks', icon: 'Upload', badge: '', path: '/(Tiles)/UploadMarks' },
+  { category: 'Examination', title: 'Results', icon: 'ChartColumn', badge: '', path: '/(Tiles)/GenerateReport' },
+  // Timetable
+  { category: 'Timetable', title: 'View Timetable', icon: 'Calendar', badge: '', path: '' },
+  { category: 'Timetable', title: 'Manage Timetable', icon: 'CalendarCog', badge: '', path: '' },
+  { category: 'Timetable', title: 'Class Routine', icon: 'Clock', badge: '', path: '' },
+  { category: 'Timetable', title: 'Room Allocation', icon: 'DoorOpen', badge: '', path: '' },
+  // AI Assistant
+  { category: 'AI Assistant', title: 'AI Chat Bot', icon: 'Bot', badge: 'AI', path: '/(Tiles)/AIChatBot' },
 ];
-
-// const tileImages: Record<string, any> = {
-//     salary: require("../../../assets/myassets/fee.png"),
-//     attendance: require("../../../assets/myassets/attendance.png"),
-//     assignment: require("../../../assets/myassets/assignment.png"),
-//     result: require("../../../assets/myassets/result.png"),
-//     event: require("../../../assets/myassets/event.png"),
-//     place_holder: require("../../../assets/myassets/place_holder.png"),
-// };
 
 export const timetableData: TimeTable[] = [
   {
