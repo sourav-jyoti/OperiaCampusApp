@@ -56,11 +56,11 @@ export function MonthPicker({
     return {
       [selectedDate]: {
         selected: true,
-        selectedColor: isDarkMode ? "#FFFFFF" : "#1A1A1A",
-        selectedTextColor: isDarkMode ? "#0A0A0A" : "#FFFFFF",
+        selectedColor: '#2563EB',
+        selectedTextColor: '#FFFFFF',
       },
     };
-  }, [selectedDate, isDarkMode]);
+  }, [selectedDate]);
 
   // Calendar theme
   const calendarTheme = useMemo(
@@ -69,56 +69,56 @@ export function MonthPicker({
       calendarBackground: colors.background,
       textSectionTitleColor: colors.textMuted,
       textSectionTitleDisabledColor: colors.textMuted,
-      selectedDayBackgroundColor: isDarkMode ? "#FFFFFF" : "#1A1A1A",
-      selectedDayTextColor: isDarkMode ? "#0A0A0A" : "#FFFFFF",
-      todayTextColor: colors.accent,
+      selectedDayBackgroundColor: '#2563EB',
+      selectedDayTextColor: '#FFFFFF',
+      todayTextColor: '#2563EB',
       dayTextColor: colors.textPrimary,
-      textDisabledColor: isDarkMode ? "#3A3A3A" : "#C4C0BB",
-      dotColor: colors.accent,
-      selectedDotColor: isDarkMode ? "#0A0A0A" : "#FFFFFF",
-      arrowColor: colors.textPrimary,
+      textDisabledColor: isDarkMode ? '#475569' : '#CBD5E1',
+      dotColor: '#2563EB',
+      selectedDotColor: '#FFFFFF',
+      arrowColor: '#2563EB',
       disabledArrowColor: colors.textMuted,
       monthTextColor: colors.textPrimary,
-      indicatorColor: colors.accent,
-      textDayFontWeight: "600" as const,
-      textMonthFontWeight: "700" as const,
-      textDayHeaderFontWeight: "600" as const,
+      indicatorColor: '#2563EB',
+      textDayFontWeight: '600' as const,
+      textMonthFontWeight: '700' as const,
+      textDayHeaderFontWeight: '600' as const,
       textDayFontSize: 16,
       textMonthFontSize: 18,
       textDayHeaderFontSize: 12,
       // Custom day styling
-      "stylesheet.day.basic": {
+      'stylesheet.day.basic': {
         base: {
           width: 44,
-          height: 56,
-          alignItems: "center",
-          justifyContent: "center",
-          borderRadius: 22,
+          height: 54,
+          alignItems: 'center',
+          justifyContent: 'center',
+          borderRadius: 20,
         },
         selected: {
-          backgroundColor: isDarkMode ? "#FFFFFF" : "#1A1A1A",
-          borderRadius: 22,
+          backgroundColor: '#2563EB',
+          borderRadius: 20,
         },
         today: {
-          backgroundColor: "transparent",
-          borderRadius: 22,
+          backgroundColor: '#EFF6FF',
+          borderRadius: 20,
         },
         text: {
           fontSize: 16,
-          fontWeight: "600",
+          fontWeight: '600',
         },
       },
-      "stylesheet.calendar.header": {
+      'stylesheet.calendar.header': {
         header: {
-          flexDirection: "row",
-          justifyContent: "space-between",
-          alignItems: "center",
+          flexDirection: 'row',
+          justifyContent: 'space-between',
+          alignItems: 'center',
           paddingHorizontal: 10,
           paddingVertical: 10,
         },
         monthText: {
           fontSize: 18,
-          fontWeight: "700",
+          fontWeight: '700',
           color: colors.textPrimary,
         },
         arrow: {
@@ -126,11 +126,11 @@ export function MonthPicker({
         },
         dayHeader: {
           width: 44,
-          textAlign: "center",
+          textAlign: 'center',
           fontSize: 12,
-          fontWeight: "600",
+          fontWeight: '700',
           color: colors.textMuted,
-          textTransform: "uppercase",
+          textTransform: 'uppercase',
         },
       },
     }),
@@ -144,35 +144,37 @@ export function MonthPicker({
 
       const isSelected = date.dateString === selectedDate;
       const isToday = date.dateString === today;
-      const isDisabled = state === "disabled";
+      const isDisabled = state === 'disabled';
 
       const bgColor = isSelected
-        ? isDarkMode
-          ? "#FFFFFF"
-          : "#1A1A1A"
+        ? '#2563EB'
+        : isToday
+        ? '#EFF6FF'
         : isDisabled
-        ? "transparent"
+        ? 'transparent'
         : isDarkMode
-        ? "#1A1A1A"
-        : "#E8E4DF";
+        ? '#1E293B'
+        : '#F1F5F9';
 
       const textColor = isSelected
-        ? isDarkMode
-          ? "#0A0A0A"
-          : "#FFFFFF"
+        ? '#FFFFFF'
         : isToday
-        ? colors.accent
+        ? '#2563EB'
         : isDisabled
         ? isDarkMode
-          ? "#3A3A3A"
-          : "#C4C0BB"
+          ? '#475569'
+          : '#CBD5E1'
         : colors.textPrimary;
 
       return (
         <TouchableOpacity
           onPress={() => handleDayPress(date)}
           activeOpacity={0.7}
-          style={[styles.dayPill, { backgroundColor: bgColor }]}
+          style={[
+            styles.dayPill,
+            { backgroundColor: bgColor },
+            isToday && !isSelected && styles.dayPillTodayBorder,
+          ]}
         >
           <Text style={[styles.dayText, { color: textColor }]}>{date.day}</Text>
         </TouchableOpacity>
@@ -281,6 +283,10 @@ const styles = StyleSheet.create({
     borderRadius: 22,
     alignItems: "center",
     justifyContent: "center",
+  },
+  dayPillTodayBorder: {
+    borderWidth: 1.5,
+    borderColor: '#93C5FD',
   },
   dayText: {
     fontSize: 16,

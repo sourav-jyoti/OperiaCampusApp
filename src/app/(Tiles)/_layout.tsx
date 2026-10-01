@@ -20,9 +20,6 @@ export default function TilesLayout() {
       <Stack.Screen name="CreateExam" />
       <Stack.Screen name="Results" />
       <Stack.Screen name="MyTimetable" />
-      <Stack.Screen name="Substitution" />
-      <Stack.Screen name="ScheduleRequests" />
-      <Stack.Screen name="StudentFeedback" />
       <Stack.Screen name="Duties" />
       <Stack.Screen name="ViewTimetable" />
       <Stack.Screen name="ManageTimetable" />

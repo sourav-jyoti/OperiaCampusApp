@@ -1,4 +1,11 @@
 import * as Haptics from 'expo-haptics';
+import {
+  CalendarCheck,
+  Clock,
+  FileText,
+  GraduationCap,
+  Sparkles,
+} from 'lucide-react-native';
 import React, { useCallback } from 'react';
 import {
   Pressable,
@@ -10,6 +17,17 @@ import {
 
 import { CALENDAR_CATEGORIES, type CalendarCategoryId } from './calendar-categories';
 import { getAgendaColors } from './theme';
+
+const CATEGORY_ICONS: Record<
+  CalendarCategoryId,
+  React.ComponentType<{ size: number; color: string }>
+> = {
+  timetable: Clock,
+  assignment: FileText,
+  attendance: CalendarCheck,
+  events: Sparkles,
+  exam: GraduationCap,
+};
 
 interface CategoryTabBarProps {
   selectedCategory: CalendarCategoryId;
@@ -34,7 +52,7 @@ export function CategoryTabBar({
   );
 
   return (
-    <View style={[styles.wrapper, { borderBottomColor: colors.cardBorder }]}>
+    <View style={styles.wrapper}>
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
@@ -42,30 +60,34 @@ export function CategoryTabBar({
       >
         {CALENDAR_CATEGORIES.map((category) => {
           const isSelected = category.id === selectedCategory;
+          const Icon = CATEGORY_ICONS[category.id];
+
           return (
             <Pressable
               key={category.id}
               onPress={() => handlePress(category.id)}
-              style={styles.tab}
+              style={({ pressed }) => [
+                styles.tabPill,
+                isSelected ? styles.tabPillSelected : styles.tabPillUnselected,
+                pressed && styles.tabPillPressed,
+              ]}
               accessibilityRole="tab"
               accessibilityState={{ selected: isSelected }}
             >
+              {Icon && (
+                <Icon
+                  size={15}
+                  color={isSelected ? '#FFFFFF' : '#64748B'}
+                />
+              )}
               <Text
                 style={[
                   styles.tabLabel,
-                  { color: isSelected ? colors.textPrimary : colors.textMuted },
-                  isSelected && styles.tabLabelSelected,
+                  isSelected ? styles.tabLabelSelected : styles.tabLabelUnselected,
                 ]}
               >
                 {category.label}
               </Text>
-              {isSelected ? (
-                <View
-                  style={[styles.indicator, { backgroundColor: colors.accent }]}
-                />
-              ) : (
-                <View style={styles.indicatorPlaceholder} />
-              )}
             </Pressable>
           );
         })}
@@ -76,36 +98,48 @@ export function CategoryTabBar({
 
 const styles = StyleSheet.create({
   wrapper: {
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    marginTop: 8,
+    paddingVertical: 10,
+    backgroundColor: 'transparent',
   },
   scrollContent: {
-    paddingHorizontal: 12,
-    gap: 4,
+    paddingHorizontal: 20,
+    gap: 8,
   },
-  tab: {
-    paddingHorizontal: 14,
-    paddingTop: 10,
-    paddingBottom: 4,
+  tabPill: {
+    flexDirection: 'row',
     alignItems: 'center',
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: 20,
+    gap: 6,
+  },
+  tabPillSelected: {
+    backgroundColor: '#2563EB',
+    shadowColor: '#2563EB',
+    shadowOpacity: 0.25,
+    shadowOffset: { width: 0, height: 2 },
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  tabPillUnselected: {
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+  },
+  tabPillPressed: {
+    opacity: 0.85,
+    transform: [{ scale: 0.98 }],
   },
   tabLabel: {
-    fontSize: 15,
-    fontWeight: '500',
+    fontSize: 13,
+    fontWeight: '600',
   },
   tabLabelSelected: {
+    color: '#FFFFFF',
     fontWeight: '700',
   },
-  indicator: {
-    marginTop: 8,
-    height: 3,
-    width: '100%',
-    minWidth: 48,
-    borderRadius: 2,
-  },
-  indicatorPlaceholder: {
-    marginTop: 8,
-    height: 3,
+  tabLabelUnselected: {
+    color: '#475569',
   },
 });
 

@@ -1,4 +1,7 @@
+import * as Haptics from 'expo-haptics';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useRouter } from 'expo-router';
+import { Coffee, MessageSquare } from 'lucide-react-native';
 import React from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
@@ -21,18 +24,31 @@ export function TimetablePeriodCard({
   onMessagePress,
 }: TimetablePeriodCardProps) {
   const colors = getAgendaColors(isDarkMode);
+  const router = useRouter();
+
+  const handleMessage = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    if (onMessagePress) {
+      onMessagePress();
+    } else {
+      router.push('/(app)/(tabs)/tabs.Messages');
+    }
+  };
 
   if (slot.kind === 'recess') {
     return (
       <LinearGradient
-        colors={['#22D3EE', '#0EA5E9']}
+        colors={['#0284C7', '#2563EB']}
         start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
+        end={{ x: 1, y: 0 }}
         style={styles.recessBar}
       >
-        <Text style={styles.recessText}>
-          Recess Time: {slot.startTime} - {slot.endTime}
-        </Text>
+        <View style={styles.recessContent}>
+          <Coffee size={18} color="#FFFFFF" />
+          <Text style={styles.recessText}>
+            Lunch & Recess Break ({slot.startTime} – {slot.endTime})
+          </Text>
+        </View>
       </LinearGradient>
     );
   }
@@ -44,44 +60,48 @@ export function TimetablePeriodCard({
         {
           backgroundColor: colors.cardBackground,
           borderColor: colors.cardBorder,
-          shadowColor: isDarkMode ? '#000' : '#1A1A1A',
         },
       ]}
     >
       <View style={styles.timeColumn}>
-        <Text style={[styles.periodLabel, { color: colors.textPrimary }]}>
-          Period {slot.period}
-        </Text>
-        <Text style={[styles.timeText, { color: colors.textMuted }]}>
+        <View style={styles.periodBadge}>
+          <Text style={styles.periodLabel}>Period {slot.period}</Text>
+        </View>
+        <Text style={[styles.timeText, { color: colors.textSecondary }]}>
           {slot.startTime}
         </Text>
-        <Text style={[styles.timeText, { color: colors.textMuted }]}>
+        <Text style={[styles.timeTextMuted, { color: colors.textMuted }]}>
           {slot.endTime}
         </Text>
       </View>
 
       <View style={[styles.divider, { backgroundColor: colors.cardBorder }]} />
 
-      <View style={[styles.iconBox, { backgroundColor: slot.color }]}>
-        <Text style={styles.iconLetter}>{subjectInitial(slot.subject)}</Text>
+      <View style={[styles.iconBox, { backgroundColor: `${slot.color}15` }]}>
+        <Text style={[styles.iconLetter, { color: slot.color }]}>
+          {subjectInitial(slot.subject)}
+        </Text>
       </View>
 
       <View style={styles.infoColumn}>
-        <Text style={[styles.subject, { color: colors.textPrimary }]}>
+        <Text style={[styles.subject, { color: colors.textPrimary }]} numberOfLines={1}>
           {slot.subject}
         </Text>
-        <Text style={[styles.teacher, { color: colors.textSecondary }]}>
+        <Text style={[styles.teacher, { color: colors.textSecondary }]} numberOfLines={1}>
           {slot.teacher}
         </Text>
       </View>
 
       <Pressable
-        onPress={onMessagePress}
+        onPress={handleMessage}
         hitSlop={8}
         style={({ pressed }) => [styles.chatButton, pressed && styles.chatPressed]}
         accessibilityRole="button"
         accessibilityLabel={`Message ${slot.teacher}`}
       >
+        <View style={styles.chatIconCircle}>
+          <MessageSquare size={16} color="#2563EB" />
+        </View>
       </Pressable>
     </View>
   );
@@ -91,45 +111,57 @@ const styles = StyleSheet.create({
   card: {
     flexDirection: 'row',
     alignItems: 'center',
-    borderRadius: 12,
+    borderRadius: 16,
     borderWidth: 1,
-    paddingVertical: 14,
-    paddingHorizontal: 12,
-    marginBottom: 12,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.06,
-    shadowRadius: 8,
-    elevation: 2,
+    paddingVertical: 12,
+    paddingHorizontal: 14,
+    marginBottom: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.03,
+    shadowRadius: 3,
+    elevation: 1,
   },
   timeColumn: {
-    width: 72,
-    paddingRight: 8,
+    width: 78,
+    paddingRight: 6,
+  },
+  periodBadge: {
+    backgroundColor: '#EFF6FF',
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 6,
+    alignSelf: 'flex-start',
+    marginBottom: 4,
   },
   periodLabel: {
-    fontSize: 13,
+    fontSize: 11,
     fontWeight: '700',
-    marginBottom: 6,
+    color: '#2563EB',
   },
   timeText: {
+    fontSize: 12,
+    fontWeight: '600',
+  },
+  timeTextMuted: {
     fontSize: 11,
-    lineHeight: 16,
+    marginTop: 1,
   },
   divider: {
     width: 1,
-    alignSelf: 'stretch',
+    height: 40,
     marginRight: 12,
   },
   iconBox: {
-    width: 44,
-    height: 44,
-    borderRadius: 10,
+    width: 42,
+    height: 42,
+    borderRadius: 12,
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 12,
   },
   iconLetter: {
-    color: '#FFFFFF',
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: '800',
   },
   infoColumn: {
@@ -137,30 +169,51 @@ const styles = StyleSheet.create({
     minWidth: 0,
   },
   subject: {
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: '700',
-    marginBottom: 4,
+    marginBottom: 2,
   },
   teacher: {
-    fontSize: 13,
+    fontSize: 12,
   },
   chatButton: {
-    padding: 4,
-    marginLeft: 4,
+    padding: 2,
+    marginLeft: 6,
   },
   chatPressed: {
-    opacity: 0.6,
+    opacity: 0.7,
+    transform: [{ scale: 0.95 }],
+  },
+  chatIconCircle: {
+    width: 34,
+    height: 34,
+    borderRadius: 17,
+    backgroundColor: '#EFF6FF',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#BFDBFE',
   },
   recessBar: {
-    borderRadius: 10,
-    paddingVertical: 14,
+    borderRadius: 14,
+    paddingVertical: 12,
     paddingHorizontal: 16,
-    marginBottom: 12,
+    marginBottom: 10,
+    shadowColor: '#2563EB',
+    shadowOpacity: 0.15,
+    shadowOffset: { width: 0, height: 2 },
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  recessContent: {
+    flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
   },
   recessText: {
     color: '#FFFFFF',
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: '700',
   },
 });

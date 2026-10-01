@@ -1,11 +1,11 @@
 /**
- * CalendarHeader – Month + Today button
+ * CalendarHeader – Campus Month Selector + Today button
  */
 
-import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
+import { Calendar, CalendarCheck, ChevronDown } from 'lucide-react-native';
 import React, { useMemo } from 'react';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { getMonthYear } from './date-helpers';
 import { getAgendaColors } from './theme';
@@ -45,54 +45,52 @@ export function CalendarHeader({
     <View
       style={[
         styles.container,
-        { backgroundColor: colors.calendarHeader },
+        { backgroundColor: colors.background },
       ]}
     >
-      {/* Month / year button */}
-      <TouchableOpacity
-        onPress={onMonthPress}
-        style={styles.monthButton}
-        activeOpacity={0.7}
+      {/* Month / Year Pill Button */}
+      <Pressable
+        onPress={() => {
+          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+          onMonthPress();
+        }}
+        style={({ pressed }) => [
+          styles.monthButton,
+          pressed && styles.buttonPressed,
+        ]}
       >
+        <View style={styles.calendarIconBox}>
+          <Calendar size={16} color="#2563EB" />
+        </View>
         <Text style={[styles.monthText, { color: colors.textPrimary }]}>
           {monthYearLabel}
         </Text>
-        <Ionicons
-          name="chevron-down"
-          size={16}
-          color={colors.textSecondary}
-        />
-      </TouchableOpacity>
+        <ChevronDown size={16} color="#64748B" />
+      </Pressable>
 
       {/* Today button */}
-      <TouchableOpacity
+      <Pressable
         onPress={handleToggle}
-        style={[
+        style={({ pressed }) => [
           styles.todayButton,
-          {
-            backgroundColor: isSelectedToday
-              ? colors.textPrimary
-              : colors.cardBackground,
-          },
+          isSelectedToday ? styles.todayButtonActive : styles.todayButtonInactive,
+          pressed && styles.buttonPressed,
         ]}
-        activeOpacity={0.7}
         disabled={isSelectedToday}
       >
+        <CalendarCheck
+          size={14}
+          color={isSelectedToday ? '#FFFFFF' : '#2563EB'}
+        />
         <Text
           style={[
             styles.todayButtonText,
-            {
-              color: isSelectedToday
-                ? isDarkMode
-                  ? '#0A0A0A'
-                  : '#FFFFFF'
-                : colors.textSecondary,
-            },
+            { color: isSelectedToday ? '#FFFFFF' : '#2563EB' },
           ]}
         >
           Today
         </Text>
-      </TouchableOpacity>
+      </Pressable>
     </View>
   );
 }
@@ -103,27 +101,66 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 20,
-    paddingVertical: 12,
+    paddingTop: 10,
+    paddingBottom: 10,
   },
   monthButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
+    backgroundColor: '#FFFFFF',
+    paddingHorizontal: 12,
+    paddingVertical: 7,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    gap: 8,
+    shadowColor: '#000',
+    shadowOpacity: 0.03,
+    shadowOffset: { width: 0, height: 1 },
+    shadowRadius: 3,
+    elevation: 1,
+  },
+  calendarIconBox: {
+    width: 26,
+    height: 26,
+    borderRadius: 13,
+    backgroundColor: '#EFF6FF',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   monthText: {
-    fontSize: 17,
-    fontWeight: '600',
-    textTransform: 'uppercase',
-    letterSpacing: 1,
+    fontSize: 15,
+    fontWeight: '700',
+    color: '#0F172A',
   },
   todayButton: {
-    paddingHorizontal: 14,
-    paddingVertical: 8,
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 13,
+    paddingVertical: 7,
     borderRadius: 20,
+    gap: 6,
+  },
+  todayButtonActive: {
+    backgroundColor: '#2563EB',
+    shadowColor: '#2563EB',
+    shadowOpacity: 0.25,
+    shadowOffset: { width: 0, height: 2 },
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  todayButtonInactive: {
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#BFDBFE',
   },
   todayButtonText: {
-    fontSize: 14,
-    fontWeight: '600',
+    fontSize: 13,
+    fontWeight: '700',
+  },
+  buttonPressed: {
+    opacity: 0.8,
+    transform: [{ scale: 0.98 }],
   },
 });
 

@@ -61,3 +61,46 @@ export interface Assignment {
   submittedAt?: string;
   totalMarks?: number;
 }
+
+export interface Teacher {
+  id: string;
+  name: string;
+  title: string; // e.g. "Dr.", "Mr.", "Mrs."
+  role: string; // e.g. "Class Teacher • Class VI-B", "HOD Mathematics"
+  subject: string;
+  department: string;
+  avatarText: string;
+  avatarBg: string;
+  avatarColor: string;
+  isOnline: boolean;
+  statusText: string;
+  room: string;
+  email: string;
+  officeHours: string;
+  phone?: string;
+}
+
+export interface ChatAttachment {
+  name: string;
+  type: 'pdf' | 'doc' | 'image';
+  size: string;
+}
+
+export interface ChatMessage {
+  id: string;
+  sender: 'user' | 'teacher';
+  text: string;
+  timestamp: string;
+  status?: 'sent' | 'delivered' | 'read';
+  attachment?: ChatAttachment;
+  reaction?: string;
+}
+
+export interface TeacherConversation {
+  teacher: Teacher;
+  unreadCount: number;
+  isPinned?: boolean;
+  lastMessage: string;
+  lastMessageTime: string;
+  messages: ChatMessage[];
+}

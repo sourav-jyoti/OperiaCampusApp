@@ -84,20 +84,17 @@ export function DaySelector({
 
   // Custom day component
   const renderDay = useCallback(
-    ({ date, state }: { date?: DateData; state?: string }) => {
+    ({ date }: { date?: DateData; state?: string }) => {
       if (!date) return <View style={styles.dayPill} />;
 
       const isSelected = date.dateString === selectedDate;
       const dayData = dayStatusMap[date.dateString];
+      const isToday = dayData?.isToday;
       const dotColor = getDotColor(dayData, isSelected);
 
-      // Selected day styling
-      const selectedBg = isDarkMode ? "#FFFFFF" : "#1A1A1A";
-      const selectedText = isDarkMode ? "#0A0A0A" : "#FFFFFF";
-
-      // Unselected day styling
-      const unselectedBg = isDarkMode ? "#1A1A1A" : "#EBEBEB";
-      const unselectedText = isDarkMode ? "#FFFFFF" : "#1A1A1A";
+      // Compute short weekday name (MON, TUE, etc.)
+      const d = new Date(date.year, date.month - 1, date.day);
+      const weekdayStr = d.toLocaleDateString('en-US', { weekday: 'short' }).toUpperCase();
 
       return (
         <TouchableOpacity
@@ -108,31 +105,43 @@ export function DaySelector({
           <View
             style={[
               styles.dayPill,
-              { backgroundColor: isSelected ? selectedBg : unselectedBg },
+              isSelected ? styles.dayPillSelected : styles.dayPillUnselected,
+              isToday && !isSelected && styles.dayPillToday,
             ]}
           >
+            {/* Weekday abbreviation */}
+            <Text
+              style={[
+                styles.dayWeekday,
+                isSelected ? styles.dayWeekdaySelected : styles.dayWeekdayUnselected,
+              ]}
+            >
+              {weekdayStr}
+            </Text>
+
+            {/* Day Number */}
             <Text
               style={[
                 styles.dayNum,
-                { color: isSelected ? selectedText : unselectedText },
+                isSelected ? styles.dayNumSelected : styles.dayNumUnselected,
               ]}
             >
               {date.day}
             </Text>
 
-            {/* Dot indicator */}
+            {/* Status Indicator */}
             {dayData?.hasCompleted && isSelected ? (
-              <Ionicons name="checkmark" size={14} color={selectedText} />
+              <Ionicons name="checkmark-circle" size={13} color="#FFFFFF" />
             ) : (
               <View
                 style={[
                   styles.dotIndicator,
                   {
                     backgroundColor: isSelected
-                      ? isDarkMode
-                        ? "#0A0A0A"
-                        : "#FFFFFF"
-                      : dotColor,
+                      ? '#FFFFFF'
+                      : dayData?.hasTodos
+                      ? dotColor
+                      : 'transparent',
                   },
                 ]}
               />
@@ -141,7 +150,7 @@ export function DaySelector({
         </TouchableOpacity>
       );
     },
-    [selectedDate, dayStatusMap, isDarkMode, getDotColor, handleDayPress]
+    [selectedDate, dayStatusMap, getDotColor, handleDayPress]
   );
 
   // Calendar theme
@@ -151,27 +160,26 @@ export function DaySelector({
       calendarBackground: colors.background,
       reservationsBackgroundColor: colors.background,
       textSectionTitleColor: colors.textMuted,
-      selectedDayBackgroundColor: isDarkMode ? "#FFFFFF" : "#1A1A1A",
-      selectedDayTextColor: isDarkMode ? "#0A0A0A" : "#FFFFFF",
-      todayTextColor: colors.accent,
+      selectedDayBackgroundColor: '#2563EB',
+      selectedDayTextColor: '#FFFFFF',
+      todayTextColor: '#2563EB',
       dayTextColor: colors.textPrimary,
       textDisabledColor: colors.textMuted,
       arrowColor: colors.textPrimary,
       monthTextColor: colors.textPrimary,
-      textDayFontWeight: "600" as const,
-      textDayFontSize: 18,
-      // Hide the header
-      "stylesheet.calendar.header": {
+      textDayFontWeight: '600' as const,
+      textDayFontSize: 16,
+      'stylesheet.calendar.header': {
         header: {
           height: 0,
           opacity: 0,
         },
         dayHeader: {
-          display: "none",
+          display: 'none',
         },
       },
     }),
-    [colors, isDarkMode]
+    [colors]
   );
 
   return (
@@ -186,13 +194,13 @@ export function DaySelector({
         }}
       >
         <WeekCalendar
-          key={isDarkMode ? "dark" : "light"}
+          key={isDarkMode ? 'dark' : 'light'}
           firstDay={1}
           theme={calendarTheme}
           dayComponent={renderDay}
           allowShadow={false}
           calendarWidth={SCREEN_WIDTH}
-          calendarHeight={85}
+          calendarHeight={90}
           hideDayNames
           style={styles.weekCalendar}
         />
@@ -203,35 +211,74 @@ export function DaySelector({
 
 const styles = StyleSheet.create({
   container: {
-    height: 85,
+    height: 90,
     width: SCREEN_WIDTH,
-    overflow: "visible",
+    overflow: 'visible',
   },
   weekCalendar: {
-    height: 85,
+    height: 90,
     width: SCREEN_WIDTH,
   },
   dayWrapper: {
-    alignItems: "center",
-    justifyContent: "center",
-    height: 80,
+    alignItems: 'center',
+    justifyContent: 'center',
+    height: 86,
   },
   dayPill: {
     width: 48,
-    height: 68,
-    borderRadius: 24,
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 4,
+    height: 74,
+    borderRadius: 20,
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: 7,
+  },
+  dayPillSelected: {
+    backgroundColor: '#2563EB',
+    shadowColor: '#2563EB',
+    shadowOpacity: 0.35,
+    shadowOffset: { width: 0, height: 3 },
+    shadowRadius: 6,
+    elevation: 4,
+  },
+  dayPillUnselected: {
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    shadowColor: '#000',
+    shadowOpacity: 0.03,
+    shadowOffset: { width: 0, height: 1 },
+    shadowRadius: 3,
+    elevation: 1,
+  },
+  dayPillToday: {
+    borderColor: '#93C5FD',
+    backgroundColor: '#F0F7FF',
+  },
+  dayWeekday: {
+    fontSize: 10,
+    fontWeight: '700',
+    letterSpacing: 0.3,
+  },
+  dayWeekdaySelected: {
+    color: '#BFDBFE',
+  },
+  dayWeekdayUnselected: {
+    color: '#64748B',
   },
   dayNum: {
     fontSize: 18,
-    fontWeight: "600",
+    fontWeight: '800',
+  },
+  dayNumSelected: {
+    color: '#FFFFFF',
+  },
+  dayNumUnselected: {
+    color: '#0F172A',
   },
   dotIndicator: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
+    width: 6,
+    height: 6,
+    borderRadius: 3,
   },
 });
 

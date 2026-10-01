@@ -1,9 +1,9 @@
 export const CALENDAR_CATEGORIES = [
-  { id: 'attendance', label: 'Attendance' },
-  { id: 'assignment', label: 'Assignment' },
-  { id: 'events', label: 'Events' },
   { id: 'timetable', label: 'Time Table' },
-  { id: 'exam', label: 'Exam Schedule' },
+  { id: 'assignment', label: 'Assignments' },
+  { id: 'attendance', label: 'Attendance' },
+  { id: 'events', label: 'Events' },
+  { id: 'exam', label: 'Exams' },
 ] as const;
 
 export type CalendarCategoryId = (typeof CALENDAR_CATEGORIES)[number]['id'];
